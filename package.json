@@ -1,0 +1,26 @@
+{
+  "name": "aep-api",
+  "version": "0.0.1",
+  "description": "AMDJ Entertainment Platform API",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "test": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anthony-Mariotti/aep-api.git"
+  },
+  "keywords": [
+    "AMDJ",
+    "Entertainment",
+    "AEP",
+    "API"
+  ],
+  "author": "Anthony Mariotti",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/Anthony-Mariotti/aep-api/issues"
+  },
+  "homepage": "https://github.com/Anthony-Mariotti/aep-api#readme"
+}
