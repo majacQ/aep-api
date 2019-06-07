@@ -3,3 +3,4 @@ bin/
 build/
 ignored/
 .vscode/
+config/

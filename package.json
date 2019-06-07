@@ -5,9 +5,10 @@
   "main": "server.js",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec npm run babel-node -- src/server.js",
-    "test": "mocha --require babel-polyfill --require babel-register",
-    "babel-node": "babel-node --presets=/*a*/ --ignore='foo|bar|baz'"
+    "dev": "cross-env NODE_ENV=development nodemon --exec npm run babel-node -- src/server.js",
+    "test": "cross-env NODE_ENV=test mocha --require babel-polyfill --require babel-register",
+    "start": "cross-env NODE_ENV=production npm run build -- node build/server.js",
+    "babel-node": "babel-node --presets=@babel/preset-env"
   },
   "repository": {
     "type": "git",
@@ -26,13 +27,20 @@
   },
   "homepage": "https://github.com/Anthony-Mariotti/aep-api#readme",
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "convict": "^5.0.0",
+    "cross-env": "^5.2.0",
+    "express": "^4.17.1"
   }
 }
