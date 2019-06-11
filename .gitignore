@@ -2,5 +2,4 @@ node_modules/
 bin/
 build/
 ignored/
-.vscode/
-config/
+production.*

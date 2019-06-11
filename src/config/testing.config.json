@@ -1,0 +1,9 @@
+{
+    "NODE_ENV": "development",
+    "API_HOST": "0.0.0.0",
+    "API_PORT": 3030,
+    "DB": {
+        "STRING": "",
+        "COLLECTION": "aep-test"
+    }
+}
