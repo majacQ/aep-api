@@ -1,7 +1,10 @@
-import { Schema, SchemaTypes } from 'mongoose'
+import { Schema, SchemaTypes, model } from 'mongoose'
 
-const EventsSchema = new Schema(
+const EventSchema = new Schema(
     {
+        _workspaceID: {
+            type: SchemaTypes.ObjectId
+        },
         code: {
             type: String,
             minlength: 4,
@@ -33,3 +36,5 @@ const EventsSchema = new Schema(
     },
     { versionKey: false, collection: 'events', timestamps: true },
 )
+
+export default model('Event', EventSchema)
