@@ -1,6 +1,7 @@
 import Events from '../models/events.model'
 import helpers from '../helpers'
 import { Types } from 'mongoose'
+
 const GetEvents = (req, res, next) => {
   return new Promise(async (resolve, reject) => {
     const { body, query } = req

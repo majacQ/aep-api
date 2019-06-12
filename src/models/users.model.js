@@ -6,6 +6,7 @@ const UserSchema = new Schema(
   {
     _workspaceID: {
       type: SchemaTypes.ObjectId,
+      required: true,
     },
     firstName: {
       type: String,
@@ -47,11 +48,11 @@ UserSchema.pre('save', async function(next) {
   next()
 })
 
-UserSchema.methods.verify = function(password) {
-  bcrypt.compare(password, this.password, (err, res) => {
+UserSchema.statics.verify = async function(password) {
+  await bcrypt.compare(password, this.password, (err, res) => {
     if (err) return new Error(err)
     return res
   })
 }
 
-export default model('User', UserSchema, 'users')
+export default model('User', UserSchema)

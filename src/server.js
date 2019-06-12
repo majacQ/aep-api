@@ -1,25 +1,35 @@
 import '@babel/polyfill'
 import express from 'express'
 import compression from 'compression'
-import erl from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
-import { json } from 'body-parser'
+import { json, urlencoded } from 'body-parser'
+import cookieParser from 'cookie-parser'
+import morgan from 'morgan'
+import passport from 'passport'
 import config from './config'
-import { connect } from './config/mongo.db'
+import mongo from './config/mongo.db'
 import api from './routes'
-import './config/local.strategy'
+
+require('./config/passport')
 
 const server = express()
 
+if (config.get('env') === 'development') {
+  server.use(morgan('dev'))
+}
 server.use(compression())
 server.use(helmet())
 server.use(json())
+server.use(urlencoded({ extended: false }))
+server.use(cookieParser())
+server.use(passport.initialize())
 
 server.use('/v1', api)
 
 server.get('/', (req, res) => res.json({ sucess: true }))
 
-connect().then(() => {
+mongo.connect().then(() => {
   console.log('Mongo Connected')
   server.listen(config.get('API_PORT'), config.get('API_HOST'), () => {
     console.log('Server Started')
