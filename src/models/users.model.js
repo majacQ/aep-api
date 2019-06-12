@@ -1,4 +1,4 @@
-import { Schema, SchemaTypes, Types, model } from 'mongoose'
+import { Schema, SchemaTypes, model } from 'mongoose'
 import bcrypt from 'bcrypt'
 import config from '../config'
 
@@ -23,13 +23,14 @@ const UserSchema = new Schema(
       type: String,
       index: true,
       required: true,
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
     },
   },
-  { versionKey: false, collection: 'users', timestamps: true },
+  { versionKey: false, timestamps: true },
 )
 
 UserSchema.pre('save', async function(next) {
@@ -38,7 +39,7 @@ UserSchema.pre('save', async function(next) {
     bcrypt.genSalt(config.get('SECURITY.SALT_ROUNDS'), (errSalt, salt) => {
       if (errSalt) return new Error(errSalt)
       bcrypt.hash(user.password, salt, (errHash, hash) => {
-        if (err) return new Error(errHash)
+        if (errHash) return new Error(errHash)
         user.password = hash
       })
     })
@@ -53,4 +54,4 @@ UserSchema.methods.verify = function(password) {
   })
 }
 
-export default model('User', UserSchema)
+export default model('User', UserSchema, 'users')

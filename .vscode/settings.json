@@ -15,7 +15,7 @@
     "editor.renderWhitespace": "all",
     "editor.smoothScrolling": true,
     "editor.tabCompletion": "on",
-    "editor.tabSize": 4,
+    "editor.tabSize": 2,
     // FILES
     "files.autoSave": "onFocusChange",
     "files.enableTrash": true,
@@ -29,7 +29,7 @@
     "prettier.jsxBracketSameLine": true,
     "prettier.semi": false,
     "prettier.singleQuote": true,
-    "prettier.tabWidth": 4,
+    "prettier.tabWidth": 2,
     "prettier.trailingComma": "all",
     "prettier.useTabs": false,
     // WINDOW

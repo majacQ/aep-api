@@ -3,7 +3,7 @@
     "API_HOST": "0.0.0.0",
     "API_PORT": 3030,
     "DB": {
-        "STRING": "mongodb://127.0.0.1:27017/aep-dev?gssapiServiceName=mongodb",
+        "STRING": "mongodb://127.0.0.1:27017/aep-dev",
         "COLLECTION": "aep-dev"
     },
     "SECURITY": {

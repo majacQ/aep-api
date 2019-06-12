@@ -19,10 +19,10 @@ server.use('/v1', api)
 
 server.get('/', (req, res) => res.json({ sucess: true }))
 
-server.listen(config.get('API_PORT'), config.get('API_HOST'), () => {
-  console.log('Server Started')
-  connect().then(() => {
-    console.log('Mongo Connected')
+connect().then(() => {
+  console.log('Mongo Connected')
+  server.listen(config.get('API_PORT'), config.get('API_HOST'), () => {
+    console.log('Server Started')
   })
 })
 
