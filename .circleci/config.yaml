@@ -5,6 +5,10 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/aep-api
+    branches:
+      only:
+        - api-creation
     docker:
       # specify the version you desire here
       - image: circleci/node:8.10
@@ -13,8 +17,6 @@ jobs:
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/mongo:4.1.9
-
-    working_directory: ~/aep-api
 
     steps:
       - checkout:
