@@ -2,26 +2,35 @@ import Events from '../models/events.model'
 import helpers from '../helpers'
 import { Types } from 'mongoose'
 
-const GetEvents = (req, res, next) => {
-  return new Promise(async (resolve, reject) => {
-    const { body, query } = req
-    console.log(body)
-    console.log(query)
-    Events.paginate(
-      { _workspaceID: Types.ObjectId('5cffd724323f5b57f895d5ff') },
-      {
-        limit: query.limit || 5,
-        page: query.page || 1,
-      },
-    )
-      .then((events) => {
-        resolve(events)
+const GetEvents = async (req, res, next) => {
+  const { body, query } = req
+  console.log('GetEvents()')
+  await Events.paginate(
+    // HARD CODED BEFORE AUTH
+    { _workspaceID: Types.ObjectId('5d003c0c34aea526f8c44b65') },
+    {
+      limit: query.limit || 5,
+      page: query.page || 1,
+    },
+  )
+    .then((paged) => {
+      console.log('Paged Events')
+      res.status(200).json({
+        hasNextPage: paged.hasNextPage,
+        hasPrevPage: paged.hasPrevPage,
+        limit: paged.limit,
+        nextPage: null,
+        page: 1,
+        prevPage: null,
+        totalPages: 1,
+        events: paged.docs,
       })
-      .catch((err) => {
-        // TODO: HANDLE ERRORS
-        reject(new Error(err))
-      })
-  })
+      return next()
+    })
+    .catch((err) => {
+      // TODO: HANDLE ERRORS
+      throw new Error(err)
+    })
 }
 
 const CreateEvent = (req, res, next) => {}
