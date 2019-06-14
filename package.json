@@ -9,7 +9,7 @@
     "start": "cross-env NODE_ENV=production npm run build -- node build/server.js",
     "build": "npm run lint && <INSERT BUILD COMMAND>",
     "lint": "eslint --fix . && echo Lint Successful",
-    "test:unit": "cross-env NODE_ENV=testing mocha --recursive --require @babel/register --exit",
+    "test": "cross-env NODE_ENV=testing mocha --recursive --require @babel/register --exit",
     "babel-node": "babel-node --presets=@babel/preset-env"
   },
   "repository": {
