@@ -5,7 +5,7 @@ jobs:
     branches:
       only:
         - master
-        - api-creation
+        - projects/api-creation
     docker:
       # specify the version you desire here
       - image: circleci/node:8.10
