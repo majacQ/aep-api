@@ -1,17 +1,17 @@
 import { assert, should, expect } from 'chai'
 import request from 'supertest'
 import config from '../../src/config'
-
-const server = require('../../src/server')
-
+import server from '../../src/server'
 const req = request(server)
 
+const baseURI = `/${config.get('API_VERSION')}/auth`
+const resetURI = `/${config.get('API_VERSION')}/dev/populate`
+
 describe('Authorization API Route', () => {
-  let resetUri = `/${config.get('API_VERSION')}/dev/populate`
   beforeEach(() => {
     return new Promise((resolve, reject) => {
       req
-        .get(`/${config.get('API_VERSION')}/dev/populate`)
+        .get(resetURI)
         .then(() => {
           resolve()
         })
@@ -23,17 +23,16 @@ describe('Authorization API Route', () => {
 
   describe('GET,POST,PUT,DELETE /auth', () => {
     it('should return 400 Bad Request', async () => {
-      let uri = `/${config.get('API_VERSION')}/auth`
-      await req.get(uri).then((res) => {
+      await req.get(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
-      await req.post(uri).then((res) => {
+      await req.post(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
-      await req.put(uri).then((res) => {
+      await req.put(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
-      await req.delete(uri).then((res) => {
+      await req.delete(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
     })
@@ -59,7 +58,7 @@ describe('Authorization API Route', () => {
     })
   })
   describe('POST /auth/register', () => {
-    let uri = `/${config.get('API_VERSION')}/auth/register`
+    let uri = `${baseURI}/register`
     it('should error if email was not supplied', async () => {
       await req
         .post(uri)
@@ -88,32 +87,30 @@ describe('Authorization API Route', () => {
           expect(res.body).to.have.property('message')
         })
     })
-    // it('should error if body was not supplied', async () => {
-    //   await req
-    //     .post(uri)
-    //     .then((res) => {
-    //       expect(res.status).to.equal(400)
-    //       expect(res.body).to.have.property('status')
-    //       expect(res.body).to.have.property('message')
-    //     })
-    // })
+    it('should error if body was not supplied', async () => {
+      await req.post(uri).then((res) => {
+        expect(res.status).to.equal(400)
+        expect(res.body).to.have.property('status')
+        expect(res.body).to.have.property('message')
+      })
+    })
     it('should return status of 201 Created', async () => {
-      // await req
-      //   .post(uri)
-      //   .send({
-      //     firstName: 'Mocha',
-      //     lastName: 'Test',
-      //     email: 'MochaTest@gmail.com',
-      //     password: 'MochaTest',
-      //   })
-      //   .then((res) => {
-      //     expect(res.status).to.equal(201)
-      //   })
-      //   .finally(async () => {
-      //     req.get(resetUri).catch((err) => {
-      //       throw new Error(err)
-      //     })
-      //   })
+      await req
+        .post(uri)
+        .send({
+          firstName: 'Mocha',
+          lastName: 'Test',
+          email: 'MochaTest@gmail.com',
+          password: 'MochaTest',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(201)
+        })
+        .finally(async () => {
+          req.get(resetURI).catch((err) => {
+            throw new Error(err)
+          })
+        })
     })
     it('should return body key success: true when successfully created', async () => {
       await req
@@ -129,7 +126,7 @@ describe('Authorization API Route', () => {
           expect(res.body.success).to.be.true
         })
         .finally(async () => {
-          req.get(resetUri).catch((err) => {
+          req.get(resetURI).catch((err) => {
             throw new Error(err)
           })
         })
@@ -147,7 +144,7 @@ describe('Authorization API Route', () => {
           expect(res.body).to.have.property('token')
         })
         .finally(async () => {
-          req.get(resetUri).catch((err) => {
+          req.get(resetURI).catch((err) => {
             throw new Error(err)
           })
         })
