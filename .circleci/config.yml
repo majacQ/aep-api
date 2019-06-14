@@ -2,10 +2,6 @@ version: 2
 jobs:
   build:
     working_directory: ~/aep-api
-    branches:
-      only:
-        - master
-        - projects/api-creation
     docker:
       # specify the version you desire here
       - image: circleci/node:8.10
