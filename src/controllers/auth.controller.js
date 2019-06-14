@@ -9,6 +9,12 @@ const DoLogin = (req, res, next) => {
 
 const DoRegister = async (req, res, next) => {
   const { firstName, lastName, email, password } = req.body
+  if (!Object.keys(req.body).length)
+    return res.status(400).json({
+      status: 400,
+      message: 'Bad Request',
+    })
+
   if (!email)
     return res.status(400).json({
       status: 400,
@@ -19,6 +25,13 @@ const DoRegister = async (req, res, next) => {
     return res.status(400).json({
       status: 400,
       message: 'A Password is required',
+    })
+
+  if (!firstName || !lastName)
+    return res.status(400).json({
+      status: 400,
+      message:
+        'First and Last Name are required to create a more personalized experience.',
     })
 
   // CHECK TO SEE IF USER EXISTS BY EMAIL
@@ -57,6 +70,7 @@ const DoRegister = async (req, res, next) => {
   })
 
   // CREATE THE NEW USER
+  // FIX: CHANGE TO NEW INSTANCE OF USER NOT CREATE()
   const user = await User.create({
     _workspaceID: workspace._id,
     firstName,
