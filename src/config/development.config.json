@@ -1,0 +1,18 @@
+{
+  "NODE_ENV": "development",
+  "API_HOST": "0.0.0.0",
+  "API_PORT": 3030,
+  "API_VERSION": "v1",
+  "DB": {
+    "STRING": "mongodb://127.0.0.1:27017/aep-dev",
+    "COLLECTION": "aep-dev"
+  },
+  "SECURITY": {
+    "SALT_ROUNDS": 15,
+    "SECRET": "AMDJ-SUPER-SECRET-KEY-PLACEMENT-DEV",
+    "JWT": {
+      "EXPIRES_IN": "5m",
+      "ISSUER": "DEVELOPMENT"
+    }
+  }
+}

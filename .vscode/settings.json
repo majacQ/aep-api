@@ -1,0 +1,38 @@
+{
+    // BREADCUMBS
+    "breadcrumbs.enabled": true,
+    "breadcrumbs.filePath": "on",
+    "breadcrumbs.symbolPath": "on",
+    "breadcrumbs.symbolSortOrder": "name",
+    // EDITOR
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorStyle": "line",
+    "editor.cursorSmoothCaretAnimation": true,
+    "editor.fontLigatures": true,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.renderFinalNewline": true,
+    "editor.renderWhitespace": "all",
+    "editor.smoothScrolling": true,
+    "editor.tabCompletion": "on",
+    "editor.tabSize": 2,
+    // FILES
+    "files.autoSave": "onFocusChange",
+    "files.enableTrash": true,
+    "files.eol": "\r\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    // Prettier
+    "prettier.arrowParens": "always",
+    "prettier.bracketSpacing": true,
+    "prettier.endOfLine": "crlf",
+    "prettier.jsxBracketSameLine": true,
+    "prettier.semi": false,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 2,
+    "prettier.trailingComma": "all",
+    "prettier.useTabs": false,
+    // WINDOW
+    "window.closeWhenEmpty": false,
+    "window.title": "${dirty}${activeEditorShort}${separator}${separator}AMDJ Entertainment Platform"
+}

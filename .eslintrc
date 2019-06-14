@@ -1,0 +1,17 @@
+{
+    "parser": "babel-eslint",
+    "env": {
+        "browser": false,
+        "es6": true,
+        "node": true
+    },
+    "plugins": [
+        "security"
+    ],
+    "extends": [
+        "plugin:security/recommended"
+    ],
+    "rules": {
+        "no-console": 0
+    }
+}
