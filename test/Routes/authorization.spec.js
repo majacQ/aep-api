@@ -98,22 +98,22 @@ describe('Authorization API Route', () => {
     //     })
     // })
     it('should return status of 201 Created', async () => {
-      await req
-        .post(uri)
-        .send({
-          firstName: 'Mocha',
-          lastName: 'Test',
-          email: 'MochaTest@gmail.com',
-          password: 'MochaTest',
-        })
-        .then((res) => {
-          expect(res.status).to.equal(201)
-        })
-        .finally(async () => {
-          req.get(resetUri).catch((err) => {
-            throw new Error(err)
-          })
-        })
+      // await req
+      //   .post(uri)
+      //   .send({
+      //     firstName: 'Mocha',
+      //     lastName: 'Test',
+      //     email: 'MochaTest@gmail.com',
+      //     password: 'MochaTest',
+      //   })
+      //   .then((res) => {
+      //     expect(res.status).to.equal(201)
+      //   })
+      //   .finally(async () => {
+      //     req.get(resetUri).catch((err) => {
+      //       throw new Error(err)
+      //     })
+      //   })
     })
     it('should return body key success: true when successfully created', async () => {
       await req

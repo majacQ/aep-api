@@ -32,7 +32,6 @@ const DoRegister = async (req, res, next) => {
 
   // CREATE WORKSPACE BASE NAME TO LOWERCASE
   let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
-
   // CHECK TO SEE IF NAMES WHERE USED IN ANOTHER WORKSPACE
   const foundWorkspace = await Workspace.find({
     name: new RegExp(workspaceName, 'i'),
@@ -44,7 +43,7 @@ const DoRegister = async (req, res, next) => {
     })
 
   // IF WORKSAPCE NAME EXISTS
-  if (foundWorkspace) {
+  if (foundWorkspace.length > 0) {
     // CREATE NEW WORKSPACE NAME WITH APPENDED NUMBER ACCORDING TO WORKSPACES
     let workspaceIncrement = parseInt(foundWorkspace[0].name.split('_')[2] || 0)
     workspaceName += `_${++workspaceIncrement}`

@@ -1,4 +1,4 @@
 # mocha.opts
 --require @babel/register
---timeout 120000
+--timeout 15000
 --exit

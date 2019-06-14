@@ -37,10 +37,10 @@ passport.use(
       try {
         // Find the user given the email
         const user = await User.findOne({ email })
+        console.log(user)
         // If not found
         if (!user) return done(null, false)
         // Check if the password is correct
-        console.log(user)
         const isValididated = await user.verify(password)
         // If not matched
         if (!isValididated) return done(null, false)
