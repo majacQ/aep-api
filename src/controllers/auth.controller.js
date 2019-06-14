@@ -68,7 +68,7 @@ const DoRegister = async (req, res, next) => {
   // GENERATE TOKEN
   const token = signToken(user)
 
-  return res.status(201).json({ token })
+  return res.status(201).json({ success: true, token })
 }
 
 const signToken = (user) => {
