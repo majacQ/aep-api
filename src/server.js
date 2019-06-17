@@ -11,8 +11,7 @@ import passport from 'passport'
 import config from './config'
 import api from './routes'
 import './config/mongo.db'
-
-require('./config/passport')
+import './config/passport'
 
 const server = express()
 
