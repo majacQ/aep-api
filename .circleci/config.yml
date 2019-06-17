@@ -62,6 +62,8 @@ workflows:
                 - master
                 - projects/api-creation
       - test:
+          requires:
+            - build
           filters:
             branches:
               only:
