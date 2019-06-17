@@ -3,3 +3,4 @@ bin/
 build/
 ignored/
 production.*
+test/results.xml
