@@ -1,31 +1,32 @@
 import mongoose from 'mongoose'
+import chalk from 'chalk'
 import config from '.'
-// import RequestModel from '../models/requests.model'
 
-const connect = () => {
-  return new Promise((resolve, reject) => {
-    mongoose.connect(
-      config.get('DB.STRING'),
-      { useCreateIndex: true, useNewUrlParser: true },
-      async (err) => {
-        if (err) reject(err)
-        resolve()
-        // TESTING INSTANCE METHODS
-        // await mongoose.connection
-        //   .collection('users')
-        //   // HARD CODED TEST EMAIL
-        //   .findOne({ email: 'braden_feeney@hotmail.com' }, (err, result) => {
-        //     if (err) reject(err)
-        //     console.log(result)
-        //     console.log(result.verify('test1234'))
-        //   })
-      },
-    )
-  })
+mongoose.connection.on('connected', () => {
+  console.info(chalk.green(`Connected to MongoDB`))
+})
+
+mongoose.connection.on('error', (err) => {
+  console.error(chalk.red('Failed to Connect to MongoDB'), err)
+})
+
+mongoose.connection.on('disconnected', () => {
+  console.info(chalk.blue('Disconnected to MongoDB'))
+})
+
+try {
+  console.info(chalk.blue('Attempting to Connect to MongoDB'))
+  mongoose.connect(
+    config.get('DB.STRING'),
+    { useNewUrlParser: true, useCreateIndex: true },
+    (err) => {
+      if (err) {
+        console.error(err)
+      }
+    },
+  )
+} catch (err) {
+  console.error(chalk.red('Error Connecting to MongoDB'), err)
 }
 
-const close = () => {
-  return mongoose.disconnect()
-}
-
-export default { connect, close }
+module.exports = mongoose

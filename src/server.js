@@ -6,10 +6,11 @@ import helmet from 'helmet'
 import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
+import chalk from 'chalk'
 import passport from 'passport'
 import config from './config'
-import mongo from './config/mongo.db'
 import api from './routes'
+import './config/mongo.db'
 
 require('./config/passport')
 
@@ -29,11 +30,18 @@ server.use('/v1', api)
 
 server.get('/', (req, res) => res.json({ sucess: true }))
 
-mongo.connect().then(() => {
-  console.log('Mongo Connected')
-  server.listen(config.get('API_PORT'), config.get('API_HOST'), () => {
-    console.log('Server Started')
-  })
-})
+try {
+  console.info(chalk.blue('Starting API Server'))
+  server
+    .listen(config.get('API_PORT'), config.get('API_HOST'), () => {
+      console.info(chalk.green('API Server Started'))
+    })
+    .on('error', (err) => {
+      console.error(chalk.red('Error Starting API'), err)
+    })
+    .on('close', () => console.info(chalk.blue('API Offline')))
+} catch (err) {
+  console.error(chalk.red('Error Starting API Server'), err)
+}
 
 module.exports = server

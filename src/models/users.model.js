@@ -2,7 +2,7 @@ import { Schema, SchemaTypes, model } from 'mongoose'
 import bcrypt from 'bcrypt'
 import config from '../config'
 
-const UserSchema = new Schema(
+export const UserSchema = new Schema(
   {
     _workspaceID: {
       type: SchemaTypes.ObjectId,
@@ -50,11 +50,14 @@ UserSchema.pre('save', async function(next) {
   next()
 })
 
-UserSchema.statics.verify = async function(password) {
-  await bcrypt.compare(password, this.password, (err, res) => {
-    if (err) return new Error(err)
-    return res
+UserSchema.method('verify', function(password) {
+  return new Promise((resolve, reject) => {
+    // FIX: LOCALLY COMPARE TAKES ON AVERAGE 3500-5000ms
+    bcrypt.compare(password, this.password, (err, same) => {
+      if (err) reject(err)
+      resolve(same)
+    })
   })
-}
+})
 
 export default model('User', UserSchema)
