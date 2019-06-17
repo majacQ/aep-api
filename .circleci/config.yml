@@ -25,22 +25,6 @@ jobs:
 
       # run tests!
       - run: yarn build
-  test:
-    working_directory: ~/aep-api
-    docker:
-      - image: circleci/node:8.10
-      - image: circleci/mongo:4.1.9
-
-    steps:
-      - checkout:
-          path: ~/aep-api
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
 
       # run tests!
       - run: yarn test
@@ -53,17 +37,9 @@ jobs:
           path: test
 workflows:
   version: 2
-  build_and_test:
+  build-test:
     jobs:
       - build:
-          filters:
-            branches:
-              only:
-                - master
-                - projects/api-creation
-      - test:
-          requires:
-            - build
           filters:
             branches:
               only:
