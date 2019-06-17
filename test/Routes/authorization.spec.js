@@ -38,23 +38,84 @@ describe('Authorization API Route', () => {
     })
   })
   describe('POST /auth/login', () => {
-    it('should error if email is not found', () => {
-      expect(true).true
+    let uri = `${baseURI}/login`
+    it('should error if email is not found', async () => {
+      await req
+        .post(uri)
+        .send({
+          email: 'notFound@email.com',
+          password: 'test1234',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(401)
+          expect(res.body).to.have.property('success')
+          expect(res.body).to.have.property('message')
+          expect(res.body.success).false
+        })
     })
-    it('should error if password is not correct', () => {
-      expect(true).true
+    it('should error if password is not correct', async () => {
+      // FIX: TAKES ON AVERAGE 3500-5000ms
+      await req
+        .post(uri)
+        .send({
+          email: 'braden_feeney@hotmail.com',
+          password: 'test',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(401)
+          expect(res.body).to.have.property('success')
+          expect(res.body).to.have.property('message')
+          expect(res.body.success).false
+        })
     })
-    it('should error if request body is not supplied', () => {
-      expect(true).true
+    it('should error if request body is not supplied', async () => {
+      await req.post(uri).then((res) => {
+        expect(res.status).to.equal(400)
+        expect(res.body).to.have.property('status')
+        expect(res.body).to.have.property('message')
+        expect(res.body.status).to.equal(400)
+      })
     })
-    it('should error if email key is not supplied', () => {
-      expect(true).true
+    it('should error if email key is not supplied', async () => {
+      await req
+        .post(uri)
+        .send({
+          password: 'test',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(400)
+          expect(res.body).to.have.property('status')
+          expect(res.body).to.have.property('message')
+          expect(res.body.status).to.equal(400)
+        })
     })
-    it('should error if password key is not supplied', () => {
-      expect(true).true
+    it('should error if password key is not supplied', async () => {
+      await req
+        .post(uri)
+        .send({
+          email: 'braden_feeney@hotmail.com',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(400)
+          expect(res.body).to.have.property('status')
+          expect(res.body).to.have.property('message')
+          expect(res.body.status).to.equal(400)
+        })
     })
-    it('should return json success key and jwt token cookie', () => {
-      expect(true).true
+    it('should return json success and jwt token', async () => {
+      // FIX: TAKES ON AVERAGE 3500-5000ms
+      await req
+        .post(uri)
+        .send({
+          email: 'braden_feeney@hotmail.com',
+          password: 'test1234',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(200)
+          expect(res.body).to.have.property('success')
+          expect(res.body).to.have.property('token')
+          expect(res.body.success).true
+        })
     })
   })
   describe('POST /auth/register', () => {
@@ -106,11 +167,6 @@ describe('Authorization API Route', () => {
         .then((res) => {
           expect(res.status).to.equal(201)
         })
-        .finally(async () => {
-          req.get(resetURI).catch((err) => {
-            throw new Error(err)
-          })
-        })
     })
     it('should return body key success: true when successfully created', async () => {
       await req
@@ -125,11 +181,6 @@ describe('Authorization API Route', () => {
           expect(res.body).to.have.property('success')
           expect(res.body.success).to.be.true
         })
-        .finally(async () => {
-          req.get(resetURI).catch((err) => {
-            throw new Error(err)
-          })
-        })
     })
     it('should return jwt token along with success', async () => {
       await req
@@ -142,11 +193,6 @@ describe('Authorization API Route', () => {
         })
         .then((res) => {
           expect(res.body).to.have.property('token')
-        })
-        .finally(async () => {
-          req.get(resetURI).catch((err) => {
-            throw new Error(err)
-          })
         })
     })
   })

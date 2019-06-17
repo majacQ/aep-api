@@ -1,88 +1,102 @@
+import passport from 'passport'
 import jwt from 'jsonwebtoken'
 import User from '../models/users.model'
 import Workspace from '../models/workspace.model'
 import config from '../config'
 
-const DoLogin = (req, res, next) => {
-  console.log('Success Login')
-}
+export default {
+  DoLogin: (req, res, next, user) => {
+    if (!req.body.email || !req.body.password)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+    passport.authenticate('local', function(err, user, info) {
+      // SERVER ERROR
+      if (err) return next(err)
+      // IF AUTH FAILED RETURN MESSAGE
+      if (info) return res.status(info.status || 401).json(info)
+      // IF AUTH PASSED CREATE JWT TOKEN
+      const token = signToken(user)
+      return res.status(200).json({ success: true, token })
+    })(req, res, next)
+  },
+  DoRegister: async (req, res, next) => {
+    const { firstName, lastName, email, password } = req.body
+    if (!Object.keys(req.body).length)
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      })
 
-const DoRegister = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body
-  if (!Object.keys(req.body).length)
-    return res.status(400).json({
-      status: 400,
-      message: 'Bad Request',
-    })
+    if (!email)
+      return res.status(400).json({
+        status: 400,
+        message: 'Email Address is required',
+      })
 
-  if (!email)
-    return res.status(400).json({
-      status: 400,
-      message: 'Email Address is required',
-    })
+    if (!password)
+      return res.status(400).json({
+        status: 400,
+        message: 'A Password is required',
+      })
 
-  if (!password)
-    return res.status(400).json({
-      status: 400,
-      message: 'A Password is required',
-    })
+    if (!firstName || !lastName)
+      return res.status(400).json({
+        status: 400,
+        message:
+          'First and Last Name are required to create a more personalized experience.',
+      })
 
-  if (!firstName || !lastName)
-    return res.status(400).json({
-      status: 400,
-      message:
-        'First and Last Name are required to create a more personalized experience.',
-    })
-
-  // CHECK TO SEE IF USER EXISTS BY EMAIL
-  const foundUser = await User.findOne({ email }).catch((err) => {
-    throw new Error(err)
-  })
-
-  // IF USER EXISTS ERROR ALREADY IN USE
-  if (foundUser)
-    return res.status(409).json({ error: 'Email Address is already in use' })
-
-  // CREATE WORKSPACE BASE NAME TO LOWERCASE
-  let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
-  // CHECK TO SEE IF NAMES WHERE USED IN ANOTHER WORKSPACE
-  const foundWorkspace = await Workspace.find({
-    name: new RegExp(workspaceName, 'i'),
-  })
-    .sort({ name: -1 })
-    .limit(1)
-    .catch((err) => {
+    // CHECK TO SEE IF USER EXISTS BY EMAIL
+    const foundUser = await User.findOne({ email }).catch((err) => {
       throw new Error(err)
     })
 
-  // IF WORKSAPCE NAME EXISTS
-  if (foundWorkspace.length > 0) {
-    // CREATE NEW WORKSPACE NAME WITH APPENDED NUMBER ACCORDING TO WORKSPACES
-    let workspaceIncrement = parseInt(foundWorkspace[0].name.split('_')[2] || 0)
-    workspaceName += `_${++workspaceIncrement}`
-  }
+    // IF USER EXISTS ERROR ALREADY IN USE
+    if (foundUser)
+      return res.status(409).json({ error: 'Email Address is already in use' })
 
-  // CREATE THE WORKSPACE BEFORE CREATING THE USER
-  const workspace = await Workspace.create({
-    name: workspaceName,
-  }).catch((err) => {
-    throw new Error(err)
-  })
+    // CREATE WORKSPACE BASE NAME TO LOWERCASE
+    let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
+    // CHECK TO SEE IF NAMES WHERE USED IN ANOTHER WORKSPACE
+    const foundWorkspace = await Workspace.find({
+      name: new RegExp(workspaceName, 'i'),
+    })
+      .sort({ name: -1 })
+      .limit(1)
+      .catch((err) => {
+        throw new Error(err)
+      })
 
-  // CREATE THE NEW USER
-  // FIX: CHANGE TO NEW INSTANCE OF USER NOT CREATE()
-  const user = await User.create({
-    _workspaceID: workspace._id,
-    firstName,
-    lastName,
-    email,
-    password,
-  })
+    // IF WORKSAPCE NAME EXISTS
+    if (foundWorkspace.length > 0) {
+      // CREATE NEW WORKSPACE NAME WITH APPENDED NUMBER ACCORDING TO WORKSPACES
+      let workspaceIncrement = parseInt(
+        foundWorkspace[0].name.split('_')[2] || 0,
+      )
+      workspaceName += `_${++workspaceIncrement}`
+    }
 
-  // GENERATE TOKEN
-  const token = signToken(user)
+    // CREATE THE WORKSPACE BEFORE CREATING THE USER
+    const workspace = await Workspace.create({
+      name: workspaceName,
+    }).catch((err) => {
+      throw new Error(err)
+    })
 
-  return res.status(201).json({ success: true, token })
+    // CREATE THE NEW USER
+    // FIX: CHANGE TO NEW INSTANCE OF USER NOT CREATE()
+    const user = await User.create({
+      _workspaceID: workspace._id,
+      firstName,
+      lastName,
+      email,
+      password,
+    })
+
+    // GENERATE TOKEN
+    const token = signToken(user)
+
+    return res.status(201).json({ success: true, token })
+  },
 }
 
 const signToken = (user) => {
@@ -98,9 +112,4 @@ const signToken = (user) => {
       expiresIn: config.get('SECURITY.JWT.EXPIRES_IN'),
     },
   )
-}
-
-export default {
-  DoLogin,
-  DoRegister,
 }
