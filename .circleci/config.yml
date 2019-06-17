@@ -4,6 +4,7 @@ jobs:
     working_directory: ~/aep-api
     docker:
       - image: circleci/node:8.10
+      - image: circleci/mongo:4.1.9
 
     steps:
       - checkout:
