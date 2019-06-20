@@ -10,7 +10,7 @@ import config from '../config'
 const apiOne = express.Router()
 
 apiOne.use('/auth', Auth)
-apiOne.use('/events', passport.authenticate('jwt', { session: false }), Events)
+apiOne.use('/events', Events)
 apiOne.use('/requests', Requests)
 apiOne.use('/teapot', Teapot)
 
