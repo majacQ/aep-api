@@ -1,5 +1,4 @@
 import Events from '../models/events.model'
-import helpers from '../helpers'
 import { Types } from 'mongoose'
 import chalk from 'chalk'
 
@@ -31,6 +30,33 @@ export default {
         // TODO: HANDLE ERRORS
         console.error(chalk.red('Error Fetching Events'), err)
       })
+  },
+  GetEvent: async (req, res, next, user = null) => {
+    const { eventID } = req.params
+    let event = null
+
+    if (Types.ObjectId.isValid(eventID))
+      event = await Events.findById(Types.ObjectId(eventID))
+    else event = await Events.findOne({ code: eventID })
+
+    if (!user) {
+      return res.status(200).json({
+        code: event.code,
+        name: event.name,
+        details: event.details,
+        open: event.open,
+        close: event.close,
+      })
+    }
+    return res.status(200).json({
+      _workspace: event._workspaceID,
+      code: event.code,
+      name: event.name,
+      details: event.details,
+      open: event.open,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
+    })
   },
   CreateEvent: (req, res, next) => {},
   UpdateEvent: (req, res, next) => {},
