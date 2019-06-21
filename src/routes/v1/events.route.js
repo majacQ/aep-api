@@ -10,7 +10,6 @@ events.get(
     return await controller.GetEvents(req, res, next)
   },
 )
-
 events.get('/:eventID', async (req, res, next) => {
   passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     if (err)
@@ -23,4 +22,14 @@ events.get('/:eventID', async (req, res, next) => {
   })(req, res, next)
 })
 
+events.post(
+  '/create',
+  [
+    passport.authenticate('jwt', { session: false }),
+    controller.Validate('create'),
+  ],
+  async (req, res, next) => {
+    controller.CreateEvent(req, res, next)
+  },
+)
 export default events
