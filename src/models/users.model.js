@@ -8,6 +8,12 @@ export const UserSchema = new Schema(
       type: SchemaTypes.ObjectId,
       required: true,
     },
+    _spotifyID: {
+      type: String,
+      index: true,
+      unique: true,
+      required: false,
+    },
     firstName: {
       type: String,
       minlength: 4,
@@ -31,6 +37,24 @@ export const UserSchema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    dashboard: {
+      type: Boolean,
+      default: true,
+    },
+    spotify: {
+      accessToken: {
+        type: String,
+        required: false,
+      },
+      refreshToken: {
+        type: String,
+        required: false,
+      },
+      expiresIn: {
+        type: String,
+        required: false,
+      },
     },
   },
   { versionKey: false, timestamps: true },

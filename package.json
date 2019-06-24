@@ -68,6 +68,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "passport-spotify": "^1.0.1",
     "regenerator-runtime": "^0.13.2",
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.0"
