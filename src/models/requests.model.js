@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
 
 const RequestSchema = new Schema(
