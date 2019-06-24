@@ -120,6 +120,22 @@ describe('Authorization API Route', () => {
   })
   describe('POST /auth/register', () => {
     let uri = `${baseURI}/register`
+    it('should error if email already exists', async () => {
+      await req
+        .post(uri)
+        .send({
+          firstName: 'Mocha',
+          lastName: 'Test',
+          email: 'braden_feeney@hotmail.com',
+          password: 'MochaTest',
+        })
+        .then((res) => {
+          expect(res.status).to.equal(409)
+          expect(res.body).to.have.property('status')
+          expect(res.body.status).to.equal(409)
+          expect(res.body).to.have.property('message')
+        })
+    })
     it('should error if email was not supplied', async () => {
       await req
         .post(uri)
@@ -131,6 +147,7 @@ describe('Authorization API Route', () => {
         .then((res) => {
           expect(res.status).to.equal(400)
           expect(res.body).to.have.property('status')
+          expect(res.body.status).to.equal(400)
           expect(res.body).to.have.property('message')
         })
     })
@@ -145,6 +162,7 @@ describe('Authorization API Route', () => {
         .then((res) => {
           expect(res.status).to.equal(400)
           expect(res.body).to.have.property('status')
+          expect(res.body.status).to.equal(400)
           expect(res.body).to.have.property('message')
         })
     })
@@ -152,6 +170,7 @@ describe('Authorization API Route', () => {
       await req.post(uri).then((res) => {
         expect(res.status).to.equal(400)
         expect(res.body).to.have.property('status')
+        expect(res.body.status).to.equal(400)
         expect(res.body).to.have.property('message')
       })
     })

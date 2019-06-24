@@ -18,12 +18,12 @@ const server = express()
 if (config.get('env') === 'development') {
   server.use(morgan('dev'))
 }
-server.use(compression())
-server.use(helmet())
 server.use(json())
-server.use(urlencoded({ extended: false }))
+server.use(helmet())
+server.use(compression())
 server.use(cookieParser())
 server.use(passport.initialize())
+server.use(urlencoded({ extended: false }))
 
 server.use('/v1', api)
 
@@ -37,10 +37,12 @@ try {
     })
     .on('error', (err) => {
       console.error(chalk.red('Error Starting API'), err)
+      process.exit(1)
     })
     .on('close', () => console.info(chalk.blue('API Offline')))
 } catch (err) {
   console.error(chalk.red('Error Starting API Server'), err)
+  process.exit(1)
 }
 
 module.exports = server

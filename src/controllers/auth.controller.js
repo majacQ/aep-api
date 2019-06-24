@@ -52,7 +52,9 @@ export default {
 
     // IF USER EXISTS ERROR ALREADY IN USE
     if (foundUser)
-      return res.status(409).json({ error: 'Email Address is already in use' })
+      return res
+        .status(409)
+        .json({ status: 409, message: 'Email Address is already in use' })
 
     // CREATE WORKSPACE BASE NAME TO LOWERCASE
     let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
