@@ -22,6 +22,7 @@ export const TrackSchema = new Schema(
       required: true,
       trim: true,
       index: true,
+      unique: true,
     },
   },
   { versionKey: false, collation: 'track', timestamps: true },

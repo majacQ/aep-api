@@ -19,20 +19,8 @@ auth.post('/register', (req, res, next) =>
   controller.DoRegister(req, res, next),
 )
 
-auth.get(
-  '/spotify',
-  passport.authenticate('spotify', { scope: ['user-read-email'] }),
-  (req, res, next) => {
-    // WILL NOT BE CALLED, REDIRECTION TO SPOTIFY
-  },
-)
-
-auth.get(
-  '/spotify/callback',
-  passport.authenticate('spotify', { failureRedirect: '/login' }),
-  (req, res, next) => {
-    res.json({ success: true })
-  },
-)
+auth.post('/spotify', async (req, res, next) => {
+  return await controller.SpotifyLogin(req, res, next)
+})
 
 export default auth

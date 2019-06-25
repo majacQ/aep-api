@@ -5,11 +5,11 @@ import { body, validationResult } from 'express-validator'
 import { validationHandler, mongooseHelpers } from '../helpers'
 
 export default {
-  GetEvents: async (req, res, next) => {
+  GetEvents: async (req, res, next, user) => {
     const { body, query } = req
     await Events.paginate(
       // HARD CODED BEFORE AUTH
-      { _workspaceID: Types.ObjectId(req.user._workspaceID) },
+      { _workspaceID: Types.ObjectId(user._workspaceID) },
       {
         limit: query.limit || 5,
         page: query.page || 1,
@@ -40,6 +40,9 @@ export default {
     if (Types.ObjectId.isValid(eventID))
       event = await Events.findById(Types.ObjectId(eventID))
     else event = await Events.findOne({ code: eventID })
+
+    if (!event)
+      return res.status(404).json({ status: 404, message: 'Event Not Found' })
 
     if (!user) {
       return res.status(200).json({

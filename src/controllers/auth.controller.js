@@ -1,8 +1,10 @@
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
+import { Types } from 'mongoose'
 import User from '../models/users.model'
 import Workspace from '../models/workspace.model'
 import config from '../config'
+import { spotify } from '../helpers'
 
 export default {
   DoLogin: (req, res, next, user) => {
@@ -98,6 +100,51 @@ export default {
     const token = signToken(user)
 
     return res.status(201).json({ success: true, token })
+  },
+  SpotifyLogin: async (req, res, next) => {
+    const { code } = req.body
+    const spotifyAccess = await spotify.GetAcessTokens(code)
+    console.log(spotifyAccess)
+    if (!spotifyAccess)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const { access_token, refresh_token, expires_in, scope } = spotifyAccess
+
+    const spotifyUser = await spotify.GetUserProfile(access_token)
+
+    if (!spotifyUser)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const user = await User.findOne({ _spotifyID: spotifyUser.id })
+
+    let token
+    if (!user) {
+      let name = spotify.GenerateSpotifyName(
+        spotifyUser.display_name,
+        spotifyUser.id,
+      )
+
+      const newUser = await User.create({
+        _workspaceID: Types.ObjectId('5a009c9c99aea999f9c99b99'),
+        _spotifyID: spotifyUser.id,
+        firstName: name.first,
+        lastName: name.last,
+        email: spotifyUser.email,
+        dashboard: false,
+        spotify: {
+          access_token,
+          refresh_token,
+          expires_in,
+          scope,
+        },
+      })
+
+      token = signToken(newUser)
+      return res.status(200).json({ success: true, token })
+    }
+
+    token = signToken(user)
+    return res.status(200).json({ success: true, token })
   },
 }
 

@@ -9,7 +9,7 @@ export const UserSchema = new Schema(
       required: true,
     },
     _spotifyID: {
-      type: String,
+      type: Number,
       index: true,
       unique: true,
       required: false,
@@ -36,22 +36,28 @@ export const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() {
+        return this.dashboard
+      },
     },
     dashboard: {
       type: Boolean,
       default: true,
     },
     spotify: {
-      accessToken: {
+      access_token: {
         type: String,
         required: false,
       },
-      refreshToken: {
+      refresh_token: {
         type: String,
         required: false,
       },
-      expiresIn: {
+      expires_in: {
+        type: Number,
+        required: false,
+      },
+      scope: {
         type: String,
         required: false,
       },
@@ -62,7 +68,7 @@ export const UserSchema = new Schema(
 
 UserSchema.pre('save', async function(next) {
   const user = this
-  if (this.isModified('password')) {
+  if (this.isModified('password') || this.isNew) {
     bcrypt.genSalt(config.get('SECURITY.SALT_ROUNDS'), (errSalt, salt) => {
       if (errSalt) return new Error(errSalt)
       bcrypt.hash(user.password, salt, (errHash, hash) => {
