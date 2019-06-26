@@ -21,7 +21,14 @@ export default {
         },
       },
     )
-      .then((response) => response.data)
+      .then((response) => {
+        const expires_at = new Date()
+        expires_at.setSeconds(
+          expires_at.getSeconds() + response.data.expires_in,
+        )
+        response.data.expires_at = expires_at
+        return response.data
+      })
       .catch((err) => {
         const error = new Error(err.response.data.error_description)
         error.status = err.response.status

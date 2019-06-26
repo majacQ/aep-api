@@ -107,7 +107,7 @@ export default {
     if (!spotifyAccess)
       return res.status(400).json({ status: 400, message: 'Bad Request' })
 
-    const { access_token, refresh_token, expires_in, scope } = spotifyAccess
+    const { access_token, refresh_token, expires_at, scope } = spotifyAccess
 
     const spotifyUser = await spotify.GetUserProfile(access_token)
     if (!spotifyUser)
@@ -132,7 +132,7 @@ export default {
         spotify: {
           access_token,
           refresh_token,
-          expires_in,
+          expires_at,
           scope,
         },
       })

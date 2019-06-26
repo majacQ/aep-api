@@ -53,8 +53,8 @@ export const UserSchema = new Schema(
         type: String,
         required: false,
       },
-      expires_in: {
-        type: Number,
+      expires_at: {
+        type: Date,
         required: false,
       },
       scope: {
