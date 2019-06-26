@@ -2,6 +2,7 @@ import Axios from 'axios'
 import QueryString from 'querystring'
 import spotify from '../config/spotify'
 import User from '../models/users.model'
+import chalk from 'chalk'
 
 export default {
   GetAcessTokens: (code) => {
@@ -62,10 +63,17 @@ export default {
   },
   GetUserAccessToken: async (UserID) => {
     const user = await User.findById(UserID, { spotify: 1 })
+
     if (!user) return new Error('User Not Found')
+    if (!ValidateAccessToken(user.spotify.expires_at)) {
+      user.spotify.access_token = await UpdateAccessToken(
+        user.spotify.refresh_token,
+        UserID,
+      )
+    }
+
     return user.spotify.access_token || null
   },
-  UpdateAccessToken: (UserID) => {},
   SearchForTrack: (Query, access_token) => {
     return Axios.get('https://api.spotify.com/v1/search', {
       headers: {
@@ -81,4 +89,49 @@ export default {
         throw error
       })
   },
+}
+
+const ValidateAccessToken = (expires_at) => {
+  const expires = new Date(expires_at)
+  if (expires.setHours(expires.getHours() - 1) >= new Date()) {
+    return false
+  }
+  return true
+}
+
+const UpdateAccessToken = (refresh_token, UserID) => {
+  return Axios.post(
+    'https://accounts.spotify.com/api/token',
+    QueryString.stringify({
+      grant_type: 'refresh_token',
+      refresh_token,
+    }),
+    {
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `${spotify.client}:${spotify.secret}`,
+        ).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    },
+  )
+    .then(async (response) => {
+      const expires_at = new Date()
+      expires_at.setSeconds(expires_at.getSeconds() + response.data.expires_in)
+      await User.updateOne(
+        { _id: UserID },
+        {
+          $set: {
+            'spotify.access_token': response.data.access_token,
+            'spotify.expires_at': expires_at,
+          },
+        },
+      ).catch((err) => {
+        console.log(chalk.cyan('Error Has Occured'), err)
+      })
+      return response.data.access_token
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 }
