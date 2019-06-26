@@ -9,7 +9,7 @@ export const UserSchema = new Schema(
       required: true,
     },
     _spotifyID: {
-      type: Number,
+      type: String,
       index: true,
       unique: true,
       required: false,

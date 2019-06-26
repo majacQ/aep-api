@@ -10,7 +10,7 @@ export default {
       QueryString.stringify({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: 'http://localhost:8080',
+        redirect_uri: 'http://localhost:3030',
       }),
       {
         headers: {
@@ -66,5 +66,12 @@ export default {
       },
       params: Query,
     })
+      .then((response) => response.data)
+      .catch((err) => {
+        console.log(err.response.data)
+        const error = new Error(err.response.data.error_description)
+        error.status = err.response.status
+        throw error
+      })
   },
 }

@@ -104,14 +104,12 @@ export default {
   SpotifyLogin: async (req, res, next) => {
     const { code } = req.body
     const spotifyAccess = await spotify.GetAcessTokens(code)
-    console.log(spotifyAccess)
     if (!spotifyAccess)
       return res.status(400).json({ status: 400, message: 'Bad Request' })
 
     const { access_token, refresh_token, expires_in, scope } = spotifyAccess
 
     const spotifyUser = await spotify.GetUserProfile(access_token)
-
     if (!spotifyUser)
       return res.status(400).json({ status: 400, message: 'Bad Request' })
 
