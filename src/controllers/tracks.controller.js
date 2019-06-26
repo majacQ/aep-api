@@ -4,7 +4,6 @@ export default {
     const token = await spotify.GetUserAccessToken(req.user._id)
     if (token) {
       const results = await spotify.SearchForTrack(req.query, token)
-      console.log(results.tracks.items[0].album)
       const tracks = results.tracks.items.map((t) => {
         return {
           id: t.id,
