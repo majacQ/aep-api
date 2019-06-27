@@ -1,7 +1,7 @@
-import { spotify } from '../helpers'
+import { spotify, lasfm } from '../helpers'
 export default {
-  Search: async (req, res, next) => {
-    const token = await spotify.GetUserAccessToken(req.user._id)
+  SpotifySearch: async (req, res, next, user) => {
+    const token = await spotify.GetUserAccessToken(user._id)
     if (token) {
       const results = await spotify.SearchForTrack(req.query, token)
       const tracks = results.tracks.items.map((t) => {
@@ -16,5 +16,15 @@ export default {
       })
       res.status(200).json({ tracks })
     }
+  },
+  DiscogSearch: async (req, res, next) => {
+    const results = await lasfm.SearchForTrack(req.query)
+    // const tracks = results.data.results.trackmatches.track.map((t) => {
+    //   return {
+    //     id: t.id,
+    //     title: t.title,
+    //   }
+    // })
+    return res.status(200).json(results.data)
   },
 }

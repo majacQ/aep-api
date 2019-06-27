@@ -5,4 +5,4 @@ ignored/
 production.*
 test/results.xml
 spotify.js
-discogs.js
+lastfm.js
