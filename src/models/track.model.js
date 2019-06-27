@@ -33,20 +33,7 @@ export const TrackSchema = new Schema(
     },
     art: {
       spotify: [Map],
-      deezer: {
-        sm: {
-          type: String,
-        },
-        md: {
-          type: String,
-        },
-        lg: {
-          type: String,
-        },
-        xl: {
-          type: String,
-        },
-      },
+      deezer: [Map],
     },
   },
   { versionKey: false, collation: 'tracks', timestamps: true },
