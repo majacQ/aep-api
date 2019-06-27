@@ -92,14 +92,19 @@ export default {
 }
 
 const ValidateAccessToken = (expires_at) => {
+  // console.log(chalk.cyan('ValidateAccessToken'))
   const expires = new Date(expires_at)
-  if (expires.setHours(expires.getHours() - 1) >= new Date()) {
+  const now = new Date()
+  // console.log(chalk.cyan(expires))
+  // console.log(chalk.cyan(now))
+  if (expires < now) {
     return false
   }
   return true
 }
 
 const UpdateAccessToken = (refresh_token, UserID) => {
+  console.log(chalk.magenta('UpdateAccessToken'))
   return Axios.post(
     'https://accounts.spotify.com/api/token',
     QueryString.stringify({
@@ -117,7 +122,9 @@ const UpdateAccessToken = (refresh_token, UserID) => {
   )
     .then(async (response) => {
       const expires_at = new Date()
-      expires_at.setSeconds(expires_at.getSeconds() + response.data.expires_in)
+      expires_at.setSeconds(
+        expires_at.getSeconds() + (response.data.expires_in - 300),
+      )
       await User.updateOne(
         { _id: UserID },
         {
@@ -129,6 +136,7 @@ const UpdateAccessToken = (refresh_token, UserID) => {
       ).catch((err) => {
         console.log(chalk.cyan('Error Has Occured'), err)
       })
+      // console.log(chalk.magenta('SuccessUpdate'))
       return response.data.access_token
     })
     .catch((err) => {

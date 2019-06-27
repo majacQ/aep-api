@@ -14,7 +14,12 @@ tracks.get('/search', async (req, res, next) => {
     { session: false },
     async (err, user, info) => {
       if (err) throw new Error(err)
-      if (!user) return await controller.DiscogSearch(req, res, next)
+
+      const localSearch = await controller.LocalSearch(req)
+
+      if (localSearch) return res.status(200).json(localSearch)
+      if (!user) return await controller.DeezerSearch(req, res, next)
+
       return await controller.SpotifySearch(req, res, next, user)
     },
   )(req, res, next)

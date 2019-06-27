@@ -1,31 +1,55 @@
-import { Schema, Types } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
-import { ArtistSchema } from './artist.model'
 
 export const TrackSchema = new Schema(
   {
-    _artistIDs: [
-      {
-        type: ArtistSchema,
-      },
-    ],
+    _artistIDs: {
+      type: [String],
+      index: true,
+    },
     _spotifyID: {
       type: String,
       index: true,
     },
-    _discogsID: {
+    _deezerID: {
       type: Number,
       index: true,
     },
-    name: {
+    title: {
       type: String,
       required: true,
       trim: true,
       index: true,
-      unique: true,
+    },
+    explicit: {
+      type: Boolean,
+      required: false,
+    },
+    spotifyPreview: {
+      type: String,
+    },
+    deezerPreview: {
+      type: String,
+    },
+    art: {
+      spotify: [Map],
+      deezer: {
+        sm: {
+          type: String,
+        },
+        md: {
+          type: String,
+        },
+        lg: {
+          type: String,
+        },
+        xl: {
+          type: String,
+        },
+      },
     },
   },
-  { versionKey: false, collation: 'track', timestamps: true },
+  { versionKey: false, collation: 'tracks', timestamps: true },
 )
 
 TrackSchema.plugin(paginate)

@@ -1,5 +1,5 @@
 import mongooseHelpers from './mongoose.helper'
 import spotify from './spotify.helper'
-import lasfm from './lasfm.helper'
+import deezer from './deezer.helper'
 
-export { mongooseHelpers, spotify, lasfm }
+export { mongooseHelpers, spotify, deezer }
