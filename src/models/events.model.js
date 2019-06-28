@@ -34,6 +34,9 @@ export const EventSchema = new Schema(
       type: SchemaTypes.Date,
       required: true,
     },
+    archived_at: {
+      type: Date,
+    },
   },
   { versionKey: false, collection: 'events', timestamps: true },
 )
