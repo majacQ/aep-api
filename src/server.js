@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import chalk from 'chalk'
 import passport from 'passport'
+import cors from 'cors'
 import config from './config'
 import api from './routes'
 import './config/mongo.db'
@@ -18,6 +19,7 @@ const server = express()
 if (config.get('env') === 'development') {
   server.use(morgan('dev'))
 }
+server.use(cors())
 server.use(json())
 server.use(helmet())
 server.use(compression())

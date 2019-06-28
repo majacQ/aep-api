@@ -1,8 +1,18 @@
 import passport from 'passport'
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
 import { Strategy as LocalStrategy } from 'passport-local'
+import { Types } from 'mongoose'
 import config from '.'
+import spotify from './spotify'
 import User from '../models/users.model'
+
+passport.serializeUser(function(user, done) {
+  done(null, user)
+})
+
+passport.deserializeUser(function(user, done) {
+  done(null, user)
+})
 
 passport.use(
   new JWTStrategy(
@@ -13,7 +23,11 @@ passport.use(
     async (payload, done) => {
       try {
         // Find the user secified in token
-        const user = await User.findById(payload.sub, { password: 0 })
+        const user = await User.findById(payload.sub, {
+          password: 0,
+          spotify: 0,
+          _spotifyID: 0,
+        })
 
         // If user does not exist
         if (!user)
@@ -49,6 +63,12 @@ passport.use(
           return done(null, false, {
             success: false,
             message: 'No Account Associated with Provided Email',
+          })
+
+        if (!user.dashboard)
+          return done(null, false, {
+            success: false,
+            message: 'Sign-In Method Denied',
           })
         // Check if the password is correct
         const isValididated = await user.verify(password)

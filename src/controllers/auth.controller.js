@@ -1,8 +1,10 @@
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
+import { Types } from 'mongoose'
 import User from '../models/users.model'
 import Workspace from '../models/workspace.model'
 import config from '../config'
+import { spotify } from '../helpers'
 
 export default {
   DoLogin: (req, res, next, user) => {
@@ -98,6 +100,61 @@ export default {
     const token = signToken(user)
 
     return res.status(201).json({ success: true, token })
+  },
+  SpotifyLogin: async (req, res, next) => {
+    const { code } = req.body
+    const spotifyAccess = await spotify.GetAcessTokens(code)
+    if (!spotifyAccess)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const { access_token, refresh_token, expires_in, scope } = spotifyAccess
+
+    const spotifyUser = await spotify.GetUserProfile(access_token)
+    if (!spotifyUser)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const user = await User.findOne({ _spotifyID: spotifyUser.id })
+
+    const expires_at = new Date()
+    expires_at.setSeconds(expires_at.getSeconds() + (expires_in - 300))
+
+    let token
+    if (!user) {
+      let name = spotify.GenerateSpotifyName(
+        spotifyUser.display_name,
+        spotifyUser.id,
+      )
+
+      const newUser = await User.create({
+        _workspaceID: Types.ObjectId('5a009c9c99aea999f9c99b99'),
+        _spotifyID: spotifyUser.id,
+        firstName: name.first,
+        lastName: name.last,
+        email: spotifyUser.email,
+        dashboard: false,
+        spotify: {
+          access_token,
+          refresh_token,
+          expires_at,
+          scope,
+        },
+      })
+
+      token = signToken(newUser)
+      return res.status(200).json({ success: true, token })
+    }
+
+    user.spotify.access_token = access_token
+    user.spotify.refresh_token = refresh_token
+    user.spotify.expires_at = expires_at
+    user.spotify.scope = scope
+
+    user.save((err) => {
+      if (err) throw new Error(err)
+    })
+
+    token = signToken(user)
+    return res.status(200).json({ success: true, token })
   },
 }
 

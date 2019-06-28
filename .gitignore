@@ -4,3 +4,4 @@ build/
 ignored/
 production.*
 test/results.xml
+spotify.js

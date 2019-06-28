@@ -1,6 +1,10 @@
 import { Types } from 'mongoose'
 export default [
   {
+    _id: Types.ObjectId('5A009c9c99aea999f9c99b99'),
+    name: 'Spotify_Workspace',
+  },
+  {
     _id: Types.ObjectId('5d003c0c34aea526f8c44b65'),
     name: 'Arlie_Veum',
   },

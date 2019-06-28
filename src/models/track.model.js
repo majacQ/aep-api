@@ -1,30 +1,46 @@
-import { Schema, Types } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
-import { ArtistSchema } from './artist.model'
 
 export const TrackSchema = new Schema(
   {
-    _artistIDs: [
-      {
-        type: ArtistSchema,
-      },
-    ],
+    // POSSIBLE REDESIGN TO JUST MAP THE ARTIST ID AND NAME
+    // TO REDUCE DATABASE CALLs. IT ALSO WOULD REDUCE THE SIZE
+    // OF THE LocalSearch METHOD POSSIBLY MAKING THE RESULTS
+    // RETURN FASTER WITH LESS PROCESING
+    _artistIDs: {
+      type: [String],
+      index: true,
+    },
     _spotifyID: {
       type: String,
       index: true,
     },
-    _discogsID: {
+    _deezerID: {
       type: Number,
       index: true,
     },
-    name: {
+    title: {
       type: String,
       required: true,
       trim: true,
       index: true,
     },
+    explicit: {
+      type: Boolean,
+      required: false,
+    },
+    spotifyPreview: {
+      type: String,
+    },
+    deezerPreview: {
+      type: String,
+    },
+    art: {
+      spotify: [Map],
+      deezer: [Map],
+    },
   },
-  { versionKey: false, collation: 'track', timestamps: true },
+  { versionKey: false, collation: 'tracks', timestamps: true },
 )
 
 TrackSchema.plugin(paginate)
