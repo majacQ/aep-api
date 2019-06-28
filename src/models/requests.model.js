@@ -3,14 +3,15 @@ import paginate from 'mongoose-paginate-v2'
 
 const RequestSchema = new Schema(
   {
-    _eventID: {
+    _workspaceID: {
       type: Types.ObjectId,
       required: true,
       index: true,
     },
-    _artistID: {
+    _eventID: {
       type: Types.ObjectId,
       required: true,
+      index: true,
     },
     _trackID: {
       type: Types.ObjectId,

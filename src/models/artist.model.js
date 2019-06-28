@@ -1,4 +1,4 @@
-import { Schema, SchemaTypes, model } from 'mongoose'
+import { Schema, model } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
 
 export const ArtistSchema = new Schema(
