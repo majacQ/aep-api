@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { spotify, deezer, utilities } from '../helpers'
 import Track from '../models/track.model'
 import Artist from '../models/artist.model'
@@ -12,7 +13,8 @@ export default {
     ).catch((error) => {
       error
     })
-    const tracks = search.map((t) => {
+
+    let tracks = search.map((t) => {
       return {
         id: t._id,
         title: t.title,
@@ -22,6 +24,10 @@ export default {
         art: t.art.spotify.concat(t.art.deezer),
       }
     })
+
+    // RETURN NULL IF THERE ARE NO ARTISTS WITHIN THE RETURNED ARRAY
+    if (tracks.length === 0) return null
+
     const artists = await Artist.find({
       _id: {
         $in: utilities.flatten(
@@ -31,8 +37,18 @@ export default {
         ),
       },
     })
-    console.log(artists)
-    if (tracks.length === 0) return null
+
+    // REPLACE STORED ObjectID with NAME AND ID from FOUND ARTISTS
+    tracks.forEach((t) => {
+      t.artists = t.artists.map((i) => {
+        const aArray = artists.find((a) => Types.ObjectId(i).equals(a._id))
+        return {
+          id: aArray._id,
+          name: aArray.name,
+        }
+      })
+    })
+
     return { tracks }
   },
   SpotifySearch: async (req, res, next, user) => {

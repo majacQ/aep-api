@@ -107,13 +107,16 @@ export default {
     if (!spotifyAccess)
       return res.status(400).json({ status: 400, message: 'Bad Request' })
 
-    const { access_token, refresh_token, expires_at, scope } = spotifyAccess
+    const { access_token, refresh_token, expires_in, scope } = spotifyAccess
 
     const spotifyUser = await spotify.GetUserProfile(access_token)
     if (!spotifyUser)
       return res.status(400).json({ status: 400, message: 'Bad Request' })
 
     const user = await User.findOne({ _spotifyID: spotifyUser.id })
+
+    const expires_at = new Date()
+    expires_at.setSeconds(expires_at.getSeconds() + (expires_in - 300))
 
     let token
     if (!user) {
@@ -140,6 +143,15 @@ export default {
       token = signToken(newUser)
       return res.status(200).json({ success: true, token })
     }
+
+    user.spotify.access_token = access_token
+    user.spotify.refresh_token = refresh_token
+    user.spotify.expires_at = expires_at
+    user.spotify.scope = scope
+
+    user.save((err) => {
+      if (err) throw new Error(err)
+    })
 
     token = signToken(user)
     return res.status(200).json({ success: true, token })

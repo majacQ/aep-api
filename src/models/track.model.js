@@ -3,6 +3,10 @@ import paginate from 'mongoose-paginate-v2'
 
 export const TrackSchema = new Schema(
   {
+    // POSSIBLE REDESIGN TO JUST MAP THE ARTIST ID AND NAME
+    // TO REDUCE DATABASE CALLs. IT ALSO WOULD REDUCE THE SIZE
+    // OF THE LocalSearch METHOD POSSIBLY MAKING THE RESULTS
+    // RETURN FASTER WITH LESS PROCESING
     _artistIDs: {
       type: [String],
       index: true,
