@@ -16,42 +16,42 @@ import eventsArray from '../../mocks/events.mock'
 
 const dev = express.Router()
 
-dev.get('/populate', (req, res, next) => {
-  Workspace.deleteMany({}).catch((err) => {
+dev.get('/populate', async (req, res, next) => {
+  await Workspace.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
-  User.deleteMany({}).catch((err) => {
+  await User.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
-  Track.deleteMany({}).catch((err) => {
+  await Track.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
-  Artist.deleteMany({}).catch((err) => {
+  await Artist.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
-  Request.deleteMany({}).catch((err) => {
+  await Request.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
-  Event.deleteMany({}).catch((err) => {
+  await Event.deleteMany({}).catch((err) => {
     throw new Error(err)
   })
 
-  Workspace.insertMany(workspaceArray).catch((err) => {
+  await Workspace.insertMany(workspaceArray).catch((err) => {
     throw new Error(err)
   })
-  User.create(userArray).catch((err) => {
+  await User.create(userArray).catch((err) => {
     throw new Error(err)
   })
-  Artist.insertMany(artistArray).catch((err) => {
+  await Artist.insertMany(artistArray).catch((err) => {
     throw new Error(err)
   })
-  Track.insertMany(trackArray).catch((err) => {
+  await Track.insertMany(trackArray).catch((err) => {
     throw new Error(err)
   })
-  Event.insertMany(eventsArray).catch((err) => {
+  await Event.insertMany(eventsArray).catch((err) => {
     throw new Error(err)
   })
-  Request.insertMany(requestArray).catch((err) => {
+  await Request.insertMany(requestArray).catch((err) => {
     throw new Error(err)
   })
 
