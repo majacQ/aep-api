@@ -1,9 +1,7 @@
 import passport from 'passport'
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
 import { Strategy as LocalStrategy } from 'passport-local'
-import { Types } from 'mongoose'
 import config from '.'
-import spotify from './spotify'
 import User from '../models/users.model'
 
 passport.serializeUser(function(user, done) {
