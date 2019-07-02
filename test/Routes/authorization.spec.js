@@ -8,30 +8,34 @@ const baseURI = `/${config.get('API_VERSION')}/auth`
 const resetURI = `/${config.get('API_VERSION')}/dev/populate`
 
 describe('Authorization API Route', () => {
-  beforeEach(() => {
-    return new Promise((resolve, reject) => {
-      req
-        .get(resetURI)
-        .then(() => {
-          resolve()
-        })
-        .catch((err) => {
-          reject(err)
-        })
-    })
+  beforeEach((done) => {
+    req
+      .get(resetURI)
+      .then(() => {
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
   })
 
   describe('GET,POST,PUT,DELETE /auth', () => {
-    it('should return 400 Bad Request', async () => {
+    it('get should return 400 Bad Request', async () => {
       await req.get(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
+    })
+    it('post should return 400 Bad Request', async () => {
       await req.post(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
+    })
+    it('put should return 400 Bad Request', async () => {
       await req.put(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
+    })
+    it('delete should return 400 Bad Request', async () => {
       await req.delete(baseURI).then((res) => {
         expect(res.status).to.equal(400)
       })
