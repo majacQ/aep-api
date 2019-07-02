@@ -11,6 +11,7 @@ export const UserSchema = new Schema(
     _spotifyID: {
       type: String,
       index: true,
+      sparse: true,
       unique: true,
       required: false,
     },
