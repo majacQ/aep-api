@@ -16,7 +16,8 @@ export default {
       {
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${spotify.client}:${spotify.secret}`,
+            `${spotify.client || process.env.SPOTIFY_CLIENT}:${spotify.secret ||
+              process.env.SPOTIFY_SECRET}`,
           ).toString('base64')}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -114,7 +115,8 @@ const UpdateAccessToken = (refresh_token, UserID) => {
     {
       headers: {
         Authorization: `Basic ${Buffer.from(
-          `${spotify.client}:${spotify.secret}`,
+          `${spotify.client || process.env.SPOTIFY_CLIENT}:${spotify.secret ||
+            process.env.SPOTIFY_SECRET}`,
         ).toString('base64')}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
