@@ -3,18 +3,22 @@ import { Types } from 'mongoose'
 export default [
   {
     _id: Types.ObjectId('5d14db950bd556d1d4e26300'),
+    _spotifyID: '7jy3rLJdDQY21OgRLCZ9sD',
     name: 'Foo Fighters',
     createdAt: '2019-06-27T15:07:01.952Z',
     updatedAt: '2019-06-27T15:07:01.952Z',
   },
   {
     _id: Types.ObjectId('5d14dbd20bd556d1d4e26304'),
+    _spotifyID: '0du5cEVh5yTK9QJze8zA0C',
+    _deezerID: 429675,
     name: 'Bruno Mars',
     createdAt: '2019-06-27T15:08:02.237Z',
     updatedAt: '2019-06-27T15:08:02.237Z',
   },
   {
     _id: Types.ObjectId('5d14dbdc0bd556d1d4e26306'),
+    _deezerID: 330,
     name: 'Backstreet Boys',
     createdAt: '2019-06-27T15:08:12.980Z',
     updatedAt: '2019-06-27T15:08:12.980Z',

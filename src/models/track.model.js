@@ -40,7 +40,7 @@ export const TrackSchema = new Schema(
       deezer: [Map],
     },
   },
-  { versionKey: false, collation: 'tracks', timestamps: true },
+  { versionKey: false, collection: 'tracks', timestamps: true },
 )
 
 TrackSchema.plugin(paginate)

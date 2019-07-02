@@ -7,11 +7,15 @@ export const ArtistSchema = new Schema(
       type: String,
       index: true,
       unique: true,
+      sparse: true,
+      required: false,
     },
     _deezerID: {
       type: Number,
       index: true,
       unique: true,
+      sparse: true,
+      required: false,
     },
     name: {
       type: String,
@@ -35,7 +39,7 @@ export const ArtistSchema = new Schema(
       },
     },
   },
-  { versionKey: false, collation: 'artists', timestamps: true },
+  { versionKey: false, collection: 'artists', timestamps: true },
 )
 
 ArtistSchema.plugin(paginate)
