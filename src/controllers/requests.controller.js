@@ -60,7 +60,55 @@ export default {
         console.error(chalk.red('Error Fetching Events'), err)
       })
   },
-  GetEventRequests: (req, res, next) => {},
+  GetEventRequests: async (req, res, next) => {
+    const { params, query } = req
+    if (!Types.ObjectId.isValid(params.eventID))
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Invalid Event ID',
+      })
+
+    await Request.paginate(
+      {
+        _workspaceID: Types.ObjectId(req.user._workspaceID),
+        _eventID: Types.ObjectId(params.eventID),
+      },
+      {
+        limit: query.limit || 5,
+        page: query.page || 1,
+      },
+    ).then(async (paged) => {
+      const trackIDs = paged.docs.map((track) => track._trackID)
+      const tracks = await Track.find({
+        _id: {
+          $in: trackIDs,
+        },
+      })
+      paged.docs = paged.docs.map((r) => {
+        const tracksLink = tracks.find((t) =>
+          Types.ObjectId(t._id).equals(r._trackID),
+        )
+        return {
+          _id: r._id,
+          title: tracksLink.title,
+          explicit: tracksLink.explicit,
+          request_count: r.request_count,
+          played: r.played,
+        }
+      })
+      res.status(200).json({
+        hasNextPage: paged.hasNextPage,
+        hasPrevPage: paged.hasPrevPage,
+        limit: paged.limit,
+        nextPage: paged.nextPage,
+        prevPage: paged.prevPage,
+        page: paged.page,
+        totalPages: paged.totalPages,
+        requests: paged.docs,
+      })
+    })
+  },
   CreateRequest: (req, res, next) => {},
   UpdateRequest: (req, res, next) => {},
   DeleteRequest: (req, res, next) => {},
