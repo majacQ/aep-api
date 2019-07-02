@@ -1,9 +1,13 @@
 import Axios from 'axios'
 import QueryString from 'querystring'
-import spotify from '../config/spotify'
 import User from '../models/users.model'
 import chalk from 'chalk'
+import { existsSync } from 'fs'
 
+let spotify
+if (existsSync('../config/spotify')) {
+  spotify = require('../config/spotify')
+}
 export default {
   GetAcessTokens: (code) => {
     return Axios.post(
