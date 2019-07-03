@@ -1,8 +1,9 @@
 import { Types } from 'mongoose'
 import chalk from 'chalk'
+import { utilities } from '../helpers'
 import Request from '../models/requests.model'
 import Track from '../models/track.model'
-import Event from '../models/events.model'
+// import Event from '../models/events.model'
 
 export default {
   // TODO: ERGE EVENT NAME WITH REQUESTS TO COMPRESS DATA OUTPUT
@@ -68,7 +69,25 @@ export default {
         success: false,
         message: 'Invalid Event ID',
       })
-
+    console.log(Types.ObjectId.isValid(params.eventID))
+    const wsValid = await utilities
+      .verifyWorkspace(params.eventID)
+      .catch((err) => {
+        res.status(400).json({
+          status: 400,
+          success: false,
+          message: err,
+        })
+        next()
+      })
+    if (!wsValid) {
+      console.log(wsValid)
+      return res.status(401).json({
+        status: 401,
+        success: false,
+        message: 'Unauthorized',
+      })
+    }
     await Request.paginate(
       {
         _workspaceID: Types.ObjectId(req.user._workspaceID),
