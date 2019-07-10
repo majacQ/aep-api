@@ -1,12 +1,25 @@
+/**
+ * Request Controller
+ * @author AMDJ Entertainment
+ * @version 0.0.2
+ */
+
 import { Types } from 'mongoose'
 import chalk from 'chalk'
-import { utilities } from '../helpers'
 import Request from '../models/requests.model'
 import Track from '../models/track.model'
 import Event from '../models/events.model'
 
 export default {
-  // TODO: ERGE EVENT NAME WITH REQUESTS TO COMPRESS DATA OUTPUT
+  /**
+   * Get all requests for a given workspace
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns {Object} All requests from a workspace (paginated)
+   * @todo MERGE EVENT NAME WITH REQUESTS TO COMPRESS DATA OUTPUT
+   */
   GetRequests: async (req, res, next) => {
     const { body, query } = req
     await Request.paginate(
@@ -61,6 +74,14 @@ export default {
         console.error(chalk.red('Error Fetching Events'), err)
       })
   },
+  /**
+   * Get all requests for a given event
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns {Object} All requests from an event (paginated)
+   */
   GetEventRequests: async (req, res, next) => {
     const { params, query } = req
     if (!Types.ObjectId.isValid(params.eventID))
@@ -122,8 +143,50 @@ export default {
       })
     })
   },
+  /**
+   * Create a new song request request for a specific event
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns  {Object} Express Response
+   */
   CreateRequest: (req, res, next) => {},
+  /**
+   * Update a request for a specific event
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns  {Object} Express Response
+   */
   UpdateRequest: (req, res, next) => {},
+  /**
+   * Delete a request for a specific event
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns  {Object} Express Response
+   */
   DeleteRequest: (req, res, next) => {},
+  /**
+   * Marked a request as played for a specific event
+   *
+   * @param  {ExpressReuqest} req Express Request Object
+   * @param  {ExpressResponse} res Express Response Object
+   * @param  {ExpressNext} next Express Next Function
+   * @returns  {Object} Express Response
+   */
   PlayRequest: (req, res, next) => {},
+  /**
+   * NOT IMPLEMENTED
+   * @todo vNext 1.2.0
+   */
+  IgnoreRequest: (req, res, next) => {},
+  /**
+   * NOT IMPLEMENTED
+   * @todo vNext 1.2.0
+   */
+  QueueRequest: (req, res, next) => {},
 }
