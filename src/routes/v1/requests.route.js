@@ -12,6 +12,7 @@ requests.get(
 )
 requests.get(
   '/:eventID',
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => await controller.GetEventRequests(req, res, next),
 )
 
