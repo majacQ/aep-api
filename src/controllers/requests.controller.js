@@ -83,65 +83,75 @@ export default {
    * @returns {Object} All requests from an event (paginated)
    */
   GetEventRequests: async (req, res, next) => {
-    const { params, query } = req
-    if (!Types.ObjectId.isValid(params.eventID))
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: 'Invalid Event ID',
-      })
+    try {
+      const { params, query } = req
+      if (!Types.ObjectId.isValid(params.eventID))
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: 'Invalid Event ID',
+        })
 
-    const event = await Event.findById(params.eventID).catch((err) => {
-      reject(err)
-    })
+      const event = await Event.findById(params.eventID)
 
-    if (event._workspaceID !== Types.ObjectId(req.user._workspaceID)) {
-      return res.status(401).json({
-        status: 401,
-        success: false,
-        message: 'Unauthorized',
-      })
-    }
+      if (!event)
+        return res.status(404).json({
+          status: 404,
+          success: false,
+          message: 'Event Not Found',
+        })
 
-    await Request.paginate(
-      {
-        _workspaceID: Types.ObjectId(req.user._workspaceID),
-        _eventID: Types.ObjectId(params.eventID),
-      },
-      {
-        limit: query.limit || 5,
-        page: query.page || 1,
-      },
-    ).then(async (paged) => {
-      const trackIDs = paged.docs.map((track) => track._trackID)
-      const tracks = await Track.find({
-        _id: {
-          $in: trackIDs,
+      if (!Types.ObjectId(event._workspaceID).equals(req.user._workspaceID)) {
+        return res.status(401).json({
+          status: 401,
+          success: false,
+          message: 'Unauthorized',
+        })
+      }
+
+      await Request.paginate(
+        {
+          _workspaceID: Types.ObjectId(req.user._workspaceID),
+          _eventID: Types.ObjectId(params.eventID),
         },
+        {
+          limit: query.limit || 5,
+          page: query.page || 1,
+        },
+      ).then(async (paged) => {
+        const trackIDs = paged.docs.map((track) => track._trackID)
+        const tracks = await Track.find({
+          _id: {
+            $in: trackIDs,
+          },
+        })
+        paged.docs = paged.docs.map((r) => {
+          const tracksLink = tracks.find((t) =>
+            Types.ObjectId(t._id).equals(r._trackID),
+          )
+          return {
+            _id: r._id,
+            title: tracksLink.title,
+            explicit: tracksLink.explicit,
+            request_count: r.request_count,
+            played: r.played,
+          }
+        })
+        res.status(200).json({
+          hasNextPage: paged.hasNextPage,
+          hasPrevPage: paged.hasPrevPage,
+          limit: paged.limit,
+          nextPage: paged.nextPage,
+          prevPage: paged.prevPage,
+          page: paged.page,
+          totalPages: paged.totalPages,
+          requests: paged.docs,
+        })
       })
-      paged.docs = paged.docs.map((r) => {
-        const tracksLink = tracks.find((t) =>
-          Types.ObjectId(t._id).equals(r._trackID),
-        )
-        return {
-          _id: r._id,
-          title: tracksLink.title,
-          explicit: tracksLink.explicit,
-          request_count: r.request_count,
-          played: r.played,
-        }
-      })
-      res.status(200).json({
-        hasNextPage: paged.hasNextPage,
-        hasPrevPage: paged.hasPrevPage,
-        limit: paged.limit,
-        nextPage: paged.nextPage,
-        prevPage: paged.prevPage,
-        page: paged.page,
-        totalPages: paged.totalPages,
-        requests: paged.docs,
-      })
-    })
+    } catch (err) {
+      console.log(err)
+      throw new Error(err)
+    }
   },
   /**
    * Create a new song request request for a specific event
