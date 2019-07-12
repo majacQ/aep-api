@@ -1,9 +1,9 @@
 import chalk from 'chalk'
 import { Types } from 'mongoose'
 import { omitBy, isUndefined, isNull, isEmpty } from 'lodash'
-import { body, validationResult } from 'express-validator'
+import { body, check } from 'express-validator'
 import Events from '../models/events.model'
-import { validationHandler, mongooseHelpers, utilities } from '../helpers'
+import { mongooseHelpers } from '../helpers'
 
 export default {
   GetEvents: async (req, res, next, user) => {

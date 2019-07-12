@@ -1,6 +1,7 @@
 import express from 'express'
 import passport from 'passport'
 import controller from '../../controllers/requests.controller'
+import { utilities } from '../../helpers'
 
 const requests = express.Router()
 
@@ -19,6 +20,8 @@ requests.get(
 // POST
 requests.post(
   '/:eventID',
+  controller.Validate('create'),
+  utilities.verifyRequest,
   async (req, res, next) => await controller.CreateRequest(req, res, next),
 )
 

@@ -6,6 +6,7 @@
 
 import { Types } from 'mongoose'
 import chalk from 'chalk'
+import { body } from 'express-validator'
 import Request from '../models/requests.model'
 import Track from '../models/track.model'
 import Event from '../models/events.model'
@@ -154,14 +155,55 @@ export default {
     }
   },
   /**
-   * Create a new song request request for a specific event
+   * Create a new song request request for a specific event in a users workspace
    *
    * @param  {ExpressReuqest} req Express Request Object
    * @param  {ExpressResponse} res Express Response Object
    * @param  {ExpressNext} next Express Next Function
    * @returns  {Object} Express Response
    */
-  CreateRequest: (req, res, next) => {},
+  CreateRequest: async (req, res, next) => {
+    const { body } = req
+
+    const event = await Event.findById(body._eventID)
+    if (!event)
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Event Not Found',
+      })
+    if (!Types.ObjectId(body._workspaceID).equals(event._workspaceID))
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Event Workspace Mismatch',
+      })
+    const track = await Track.findById(body._trackID)
+    if (!track)
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Track Not Found',
+      })
+    let request = await Request.findOne({
+      _trackID: Types.ObjectId(body._trackID),
+      _eventID: Types.ObjectId(body._eventID),
+    })
+    if (request) {
+      request.request_count++
+      request.save()
+      return res.status(200).json({
+        status: 200,
+        success: true,
+      })
+    }
+    request = new Request(body)
+    await request.save()
+    return res.json({
+      status: 200,
+      success: true,
+    })
+  },
   /**
    * Update a request for a specific event
    *
@@ -199,4 +241,52 @@ export default {
    * @todo vNext 1.2.0
    */
   QueueRequest: (req, res, next) => {},
+  /**
+   * (Express Middleware) Validate the body of the request for event requests
+   *
+   *
+   * @param  {String} method
+   */
+  Validate: (method) => {
+    switch (method) {
+      case 'create':
+        return [
+          body('_id')
+            .not()
+            .exists()
+            .withMessage('Cannot set Request ID'),
+          body('played')
+            .not()
+            .exists()
+            .withMessage('Cannot set Played'),
+          body('request_count')
+            .not()
+            .exists()
+            .withMessage('Cannot set Request Count'),
+          body('_workspaceID').custom((_workspaceID) => {
+            if (typeof _workspaceID === 'undefined')
+              return Promise.reject('Missing Workspace ID')
+            if (!Types.ObjectId.isValid(_workspaceID))
+              return Promise.reject('Workspace ID Invalid')
+            return Promise.resolve()
+          }),
+          body('_eventID').custom((_eventID) => {
+            if (typeof _eventID === 'undefined')
+              return Promise.reject('Missing Event ID')
+            if (!Types.ObjectId.isValid(_eventID))
+              return Promise.reject('Event ID Invalid')
+            return Promise.resolve()
+          }),
+          body('_trackID').custom((_trackID) => {
+            if (typeof _trackID === 'undefined')
+              return Promise.reject('Missing Track ID')
+            if (!Types.ObjectId.isValid(_trackID))
+              return Promise.reject('Track ID Invalid')
+            return Promise.resolve()
+          }),
+        ]
+      default:
+        return false
+    }
+  },
 }
