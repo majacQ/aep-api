@@ -16,6 +16,11 @@ requests.get(
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => await controller.GetEventRequests(req, res, next),
 )
+requests.get(
+  '/:eventID/:requestID',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => await controller.GetSpecificRequest(req, res, next),
+)
 
 // POST
 requests.post(

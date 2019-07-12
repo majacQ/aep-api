@@ -15,9 +15,9 @@ export default {
   /**
    * Get all requests for a given workspace
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns {Object} All requests from a workspace (paginated)
    * @todo MERGE EVENT NAME WITH REQUESTS TO COMPRESS DATA OUTPUT
    */
@@ -57,6 +57,7 @@ export default {
             explicit: tracksLink.explicit,
             request_count: r.request_count,
             played: r.played,
+            artists: ['FEATURE COMING SOON'],
           }
         })
         res.status(200).json({
@@ -78,9 +79,9 @@ export default {
   /**
    * Get all requests for a given event
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns {Object} All requests from an event (paginated)
    */
   GetEventRequests: async (req, res, next) => {
@@ -136,6 +137,7 @@ export default {
             explicit: tracksLink.explicit,
             request_count: r.request_count,
             played: r.played,
+            artists: ['FEATURE COMING SOON'],
           }
         })
         res.status(200).json({
@@ -155,11 +157,70 @@ export default {
     }
   },
   /**
+   * Get a specific request based on the ObjectID
+   *
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
+   * @returns {Object} Specific Event Request with Artist(s) and Track listed
+   */
+  GetSpecificRequest: async (req, res, next) => {
+    const { params } = req
+    const event = await Event.findById(params.eventID)
+    if (!event)
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Event Not Found',
+      })
+    if (!Types.ObjectId(event._workspaceID).equals(req.user._workspaceID))
+      return res.status(401).json({
+        status: 401,
+        success: false,
+        message: 'Unauthorized',
+      })
+    const request = await Request.findOne({
+      _id: Types.ObjectId(params.requestID),
+      _eventID: event._id,
+    })
+
+    if (!request)
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Request Not Found',
+      })
+
+    const track = await Track.findById(request._trackID)
+
+    if (!track)
+      return res.status(500).json({
+        status: 500,
+        success: false,
+        message: 'Error Finding Track',
+      })
+
+    return res.status(200).json({
+      played: request.played,
+      request_count: request.request_count,
+      archived: request.archived,
+      track: {
+        title: track.title,
+        explicit: track.explicit,
+        preview: track.spotifyPreview
+          ? track.spotifyPreview
+          : track.deezerPreview,
+        art: track.art,
+        artists: ['FEATURE COMING SOON'],
+      },
+    })
+  },
+  /**
    * Create a new song request request for a specific event in a users workspace
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns  {Object} Express Response
    */
   CreateRequest: async (req, res, next) => {
@@ -207,27 +268,27 @@ export default {
   /**
    * Update a request for a specific event
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns  {Object} Express Response
    */
   UpdateRequest: (req, res, next) => {},
   /**
    * Delete a request for a specific event
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns  {Object} Express Response
    */
   DeleteRequest: (req, res, next) => {},
   /**
    * Marked a request as played for a specific event
    *
-   * @param  {ExpressReuqest} req Express Request Object
-   * @param  {ExpressResponse} res Express Response Object
-   * @param  {ExpressNext} next Express Next Function
+   * @param  {Request} req Express Request Object
+   * @param  {Rsponse} res Express Response Object
+   * @param  {Function} next Express Next Function
    * @returns  {Object} Express Response
    */
   PlayRequest: (req, res, next) => {},
