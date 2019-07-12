@@ -25,6 +25,11 @@ const RequestSchema = new Schema(
       type: Number,
       default: 1,
     },
+    archived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   { versionKey: false, collection: 'requests', timestamps: true },
 )

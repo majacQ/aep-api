@@ -6,6 +6,12 @@ export default {
     if (req.user.dashboard) return next()
     return res.status(401).json({ status: 401, message: 'Unauthorized' })
   },
+  /**
+   * (Express Middleware) Map Validation Messages and Error items that got rejected from the `controller.Validate` method
+   * @param  {Object} req Express Request Object
+   * @param  {Object} res Express Response Object
+   * @param  {Function} next Express Next Function
+   */
   verifyRequest: async (req, res, next) => {
     const valid = await validationResult(req)
     if (!valid.isEmpty())
