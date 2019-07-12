@@ -7,6 +7,7 @@
 import { Types } from 'mongoose'
 import chalk from 'chalk'
 import { body } from 'express-validator'
+import { isUndefined, isBoolean, isNull, isEmpty, omitBy } from 'lodash'
 import Request from '../models/requests.model'
 import Track from '../models/track.model'
 import Event from '../models/events.model'
@@ -273,7 +274,57 @@ export default {
    * @param  {Function} next Express Next Function
    * @returns  {Object} Express Response
    */
-  UpdateRequest: (req, res, next) => {},
+  UpdateRequest: async (req, res, next) => {
+    const { params } = req
+    const { played, archived } = req.body
+
+    const request = await Request.findOne({
+      _id: Types.ObjectId(params.requestID),
+      _eventID: Types.ObjectId(params.eventID),
+    })
+
+    if (!request)
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Request Not Found',
+      })
+
+    if (!Types.ObjectId(request._workspaceID).equals(req.user._workspaceID))
+      return res.status(401).json({
+        status: 401,
+        success: false,
+        message: 'Unauthorized',
+      })
+
+    await Request.updateOne(
+      { _id: params.requestID, _eventID: params.eventID },
+      omitBy(
+        {
+          played,
+          archived,
+        },
+        (v) => {
+          if (isUndefined(v) || isNull(v)) return true
+          return false
+        },
+      ),
+    )
+      .then((results) => {
+        if (results.nModified < 1) throw new Error('Error Updating Event')
+        console.log(results)
+      })
+      .catch((err) => {
+        // FIX: HANDLE DUPLICATION ERROR
+        throw new Error(err)
+      })
+
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: 'Request Updated',
+    })
+  },
   /**
    * Delete a request for a specific event
    *
@@ -283,20 +334,6 @@ export default {
    * @returns  {Object} Express Response
    */
   DeleteRequest: (req, res, next) => {},
-  /**
-   * Marked a request as played for a specific event
-   *
-   * @param  {Request} req Express Request Object
-   * @param  {Rsponse} res Express Response Object
-   * @param  {Function} next Express Next Function
-   * @returns  {Object} Express Response
-   */
-  PlayRequest: (req, res, next) => {},
-  /**
-   * NOT IMPLEMENTED
-   * @todo vNext 1.2.0
-   */
-  IgnoreRequest: (req, res, next) => {},
   /**
    * NOT IMPLEMENTED
    * @todo vNext 1.2.0
@@ -325,29 +362,58 @@ export default {
             .exists()
             .withMessage('Cannot set Request Count'),
           body('_workspaceID').custom((_workspaceID) => {
-            if (typeof _workspaceID === 'undefined')
+            if (isUndefined(_workspaceID))
               return Promise.reject('Missing Workspace ID')
             if (!Types.ObjectId.isValid(_workspaceID))
               return Promise.reject('Workspace ID Invalid')
             return Promise.resolve()
           }),
           body('_eventID').custom((_eventID) => {
-            if (typeof _eventID === 'undefined')
-              return Promise.reject('Missing Event ID')
+            if (isUndefined(_eventID)) return Promise.reject('Missing Event ID')
             if (!Types.ObjectId.isValid(_eventID))
               return Promise.reject('Event ID Invalid')
             return Promise.resolve()
           }),
           body('_trackID').custom((_trackID) => {
-            if (typeof _trackID === 'undefined')
-              return Promise.reject('Missing Track ID')
+            if (isUndefined(_trackID)) return Promise.reject('Missing Track ID')
             if (!Types.ObjectId.isValid(_trackID))
               return Promise.reject('Track ID Invalid')
             return Promise.resolve()
           }),
         ]
+      case 'update':
+        return [
+          body('played').custom((played) => {
+            if (isUndefined(played)) return Promise.resolve()
+            else if (!isBoolean(played))
+              return Promise.reject('Played can only be True or False')
+            return Promise.resolve()
+          }),
+          body('archived').custom((archived) => {
+            if (isUndefined(archived)) return Promise.resolve()
+            else if (!isBoolean(archived))
+              return Promise.reject('Archived can only be True or False')
+            return Promise.resolve()
+          }),
+          body('request_count')
+            .not()
+            .exists()
+            .withMessage('Cannot set Request Count'),
+          body('_workspaceID')
+            .not()
+            .exists()
+            .withMessage('Cannot set Workspace ID'),
+          body('_eventID')
+            .not()
+            .exists()
+            .withMessage('Cannot set Event ID'),
+          body('_trackID')
+            .not()
+            .exists()
+            .withMessage('Cannot set Track ID'),
+        ]
       default:
-        return false
+        return []
     }
   },
 }

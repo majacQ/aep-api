@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator'
 import { Types } from 'mongoose'
+import { isEmpty } from 'lodash'
 import Event from '../models/events.model'
 export default {
   hasDashboard: (req, res, next) => {
@@ -13,6 +14,12 @@ export default {
    * @param  {Function} next Express Next Function
    */
   verifyRequest: async (req, res, next) => {
+    if (isEmpty(req.body))
+      return res.status(400).json({
+        status: 400,
+        succes: false,
+        message: 'Bad Request',
+      })
     const valid = await validationResult(req)
     if (!valid.isEmpty())
       return res.status(400).json({

@@ -33,6 +33,9 @@ requests.post(
 // PUT
 requests.put(
   '/:eventID/:requestID',
+  passport.authenticate('jwt', { session: false }),
+  controller.Validate('update'),
+  utilities.verifyRequest,
   async (req, res, next) => await controller.UpdateRequest(req, res, next),
 )
 
