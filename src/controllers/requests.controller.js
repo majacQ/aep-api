@@ -312,7 +312,6 @@ export default {
     )
       .then((results) => {
         if (results.nModified < 1) throw new Error('Error Updating Event')
-        console.log(results)
       })
       .catch((err) => {
         // FIX: HANDLE DUPLICATION ERROR

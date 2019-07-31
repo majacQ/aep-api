@@ -24,16 +24,18 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
       - run: yarn build
 
       # run tests!
-      - run: yarn test
+      - run:
+          command: yarn test
+          enviornment:
+            MOCHA_FILE: test/results.xml
+          when: always
 
       - store_artifacts:
           path: test/results.xml
           prefix: TestResults
-
       - store_test_results:
           path: test
 workflows:
@@ -42,8 +44,3 @@ workflows:
     jobs:
       - build:
           context: TESTING
-          filters:
-            branches:
-              only:
-                - master
-                - projects/api-creation

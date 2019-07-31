@@ -42,7 +42,11 @@ export default {
     else event = await Events.findOne({ code: eventID })
 
     if (!event)
-      return res.status(404).json({ status: 404, message: 'Event Not Found' })
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: 'Event Not Found',
+      })
 
     if (!user) {
       return res.status(200).json({
@@ -59,6 +63,7 @@ export default {
       name: event.name,
       details: event.details,
       open: event.open,
+      close: event.close,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     })

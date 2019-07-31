@@ -9,7 +9,11 @@ import { spotify } from '../helpers'
 export default {
   DoLogin: (req, res, next, user) => {
     if (!req.body.email || !req.body.password)
-      return res.status(400).json({ status: 400, message: 'Bad Request' })
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Bad Request',
+      })
     passport.authenticate('local', function(err, user, info) {
       // SERVER ERROR
       if (err) return next(err)
@@ -17,7 +21,11 @@ export default {
       if (info) return res.status(info.status || 401).json(info)
       // IF AUTH PASSED CREATE JWT TOKEN
       const token = signToken(user)
-      return res.status(200).json({ success: true, token })
+      return res.status(200).json({
+        status: 200,
+        success: true,
+        token,
+      })
     })(req, res, next)
   },
   DoRegister: async (req, res, next) => {
@@ -25,24 +33,28 @@ export default {
     if (!Object.keys(req.body).length)
       return res.status(400).json({
         status: 400,
+        success: false,
         message: 'Bad Request',
       })
 
     if (!email)
       return res.status(400).json({
         status: 400,
+        success: false,
         message: 'Email Address is required',
       })
 
     if (!password)
       return res.status(400).json({
         status: 400,
+        success: false,
         message: 'A Password is required',
       })
 
     if (!firstName || !lastName)
       return res.status(400).json({
         status: 400,
+        success: false,
         message:
           'First and Last Name are required to create a more personalized experience.',
       })
@@ -54,9 +66,11 @@ export default {
 
     // IF USER EXISTS ERROR ALREADY IN USE
     if (foundUser)
-      return res
-        .status(409)
-        .json({ status: 409, message: 'Email Address is already in use' })
+      return res.status(409).json({
+        status: 409,
+        success: false,
+        message: 'Email Address is already in use',
+      })
 
     // CREATE WORKSPACE BASE NAME TO LOWERCASE
     let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
@@ -99,7 +113,11 @@ export default {
     // GENERATE TOKEN
     const token = signToken(user)
 
-    return res.status(201).json({ success: true, token })
+    return res.status(201).json({
+      status: 201,
+      success: true,
+      token,
+    })
   },
   SpotifyLogin: async (req, res, next) => {
     const { code } = req.body
@@ -157,7 +175,13 @@ export default {
     return res.status(200).json({ success: true, token })
   },
 }
-
+/**
+ * Sign JWT Token for a given user
+ *
+ * @private
+ * @param  {User} user Authenticated User
+ * @returns {Object} JWT Token
+ */
 const signToken = (user) => {
   return jwt.sign(
     {

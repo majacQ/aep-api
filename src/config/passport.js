@@ -30,6 +30,7 @@ passport.use(
         // If user does not exist
         if (!user)
           return done(null, false, {
+            status: 404,
             success: false,
             message: 'No Account Associated with Provided Email',
           })
@@ -59,12 +60,14 @@ passport.use(
         // If not found
         if (!user)
           return done(null, false, {
+            status: 401,
             success: false,
             message: 'No Account Associated with Provided Email',
           })
 
         if (!user.dashboard)
           return done(null, false, {
+            status: 401,
             success: false,
             message: 'Sign-In Method Denied',
           })
@@ -73,6 +76,7 @@ passport.use(
         // If not matched
         if (!isValididated)
           return done(null, false, {
+            status: 401,
             success: false,
             message: 'Incorect Email/Password',
           })

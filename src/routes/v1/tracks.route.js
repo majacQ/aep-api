@@ -5,7 +5,11 @@ import controller from '../../controllers/tracks.controller'
 const tracks = express.Router()
 
 tracks.all('/', (req, res, next) => {
-  return res.status(400).json({ status: 400, error: 'Bad Request' })
+  return res.status(400).json({
+    status: 400,
+    success: false,
+    error: 'Bad Request',
+  })
 })
 
 tracks.get('/search', async (req, res, next) => {
