@@ -258,8 +258,6 @@ describe('Authorization API Route', () => {
       expect(true).true
     })
   })
-  describe('POST /auth/token', () => {})
-  describe('POST /auth/revoke', () => {})
   describe('POST /auth/logout', () => {
     it('should error if not authorized', () => {
       expect(true).true
