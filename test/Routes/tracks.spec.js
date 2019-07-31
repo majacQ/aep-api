@@ -19,10 +19,22 @@ describe('Tracks API Route', () => {
       .then((res) => {
         expect(res.status).to.equal(200)
         token = `Bearer ${res.body.token}`
+        request(server)
+          .get(resetURI)
+          .end((err) => {
+            if (err) return done(err)
+            done()
+          })
+      })
+  })
+  after((done) => {
+    request(server)
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
         done()
       })
   })
-
   describe('GET, POST, PUT, DELETE /', () => {
     it('GET should only return 400 bad request', (done) => {
       request(server)
