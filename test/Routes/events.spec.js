@@ -17,15 +17,15 @@ describe('Event API Route', () => {
 
   before((done) => {
     request(server)
-      .post(`/${config.get('API_VERSION')}/auth/login`)
-      .send(testUser)
-      .then((res) => {
-        expect(res.status).to.equal(200)
-        token = `Bearer ${res.body.token}`
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
         request(server)
-          .get(resetURI)
-          .end((err) => {
-            if (err) return done(err)
+          .post(`/${config.get('API_VERSION')}/auth/login`)
+          .send(testUser)
+          .then((res) => {
+            expect(res.status).to.equal(200)
+            token = `Bearer ${res.body.token}`
             done()
           })
       })
