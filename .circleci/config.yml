@@ -42,8 +42,3 @@ workflows:
     jobs:
       - build:
           context: TESTING
-          filters:
-            branches:
-              only:
-                - master
-                - projects/api-creation
