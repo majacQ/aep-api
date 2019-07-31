@@ -29,6 +29,12 @@ export default {
       })
     return next()
   },
+  /**
+   * Verify that an event exists and is within the authenticated users workspace
+   *
+   * @param  {ObjectId} eventID
+   * @todo FALSE POSITIVES are triggering issues
+   */
   verifyWorkspace: (eventID) => {
     return new Promise(async (resolve, reject) => {
       if (!Types.ObjectId.isValid(eventID)) reject('Invalid ObjectID')
