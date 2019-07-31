@@ -10,6 +10,22 @@ const testUser = {
 }
 
 describe('Authorization API Route', () => {
+  before((done) => {
+    request(server)
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
+        done()
+      })
+  })
+  after((done) => {
+    request(server)
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
+        done()
+      })
+  })
   describe('GET,POST,PUT,DELETE /auth', () => {
     it('get should return 400 Bad Request', (done) => {
       request(server)
