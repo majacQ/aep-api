@@ -1,5 +1,6 @@
-import * as utilities from './utilities.helper'
+import mongooseHelpers from './mongoose.helper'
+import utilities from './utilities.helper'
+import spotify from './spotify.helper'
+import deezer from './deezer.helper'
 
-export default {
-  utilities,
-}
+export { mongooseHelpers, spotify, deezer, utilities }

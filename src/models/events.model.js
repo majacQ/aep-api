@@ -1,7 +1,7 @@
 import { Schema, SchemaTypes, model } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
 
-const EventSchema = new Schema(
+export const EventSchema = new Schema(
   {
     _workspaceID: {
       type: SchemaTypes.ObjectId,
@@ -33,6 +33,9 @@ const EventSchema = new Schema(
     close: {
       type: SchemaTypes.Date,
       required: true,
+    },
+    archived_at: {
+      type: Date,
     },
   },
   { versionKey: false, collection: 'events', timestamps: true },

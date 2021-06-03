@@ -1,76 +1,187 @@
+import passport from 'passport'
 import jwt from 'jsonwebtoken'
+import { Types } from 'mongoose'
 import User from '../models/users.model'
 import Workspace from '../models/workspace.model'
 import config from '../config'
+import { spotify } from '../helpers'
 
-const DoLogin = (req, res, next) => {
-  console.log('Success Login')
-}
+export default {
+  DoLogin: (req, res, next, user) => {
+    if (!req.body.email || !req.body.password)
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Bad Request',
+      })
+    passport.authenticate('local', function(err, user, info) {
+      // SERVER ERROR
+      if (err) return next(err)
+      // IF AUTH FAILED RETURN MESSAGE
+      if (info) return res.status(info.status || 401).json(info)
+      // IF AUTH PASSED CREATE JWT TOKEN
+      const token = signToken(user)
+      return res.status(200).json({
+        status: 200,
+        success: true,
+        token,
+      })
+    })(req, res, next)
+  },
+  DoRegister: async (req, res, next) => {
+    const { firstName, lastName, email, password } = req.body
+    if (!Object.keys(req.body).length)
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Bad Request',
+      })
 
-const DoRegister = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body
-  if (!email)
-    return res.status(400).json({
-      status: 400,
-      message: 'Email Address is required',
-    })
+    if (!email)
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'Email Address is required',
+      })
 
-  if (!password)
-    return res.status(400).json({
-      status: 400,
-      message: 'A Password is required',
-    })
+    if (!password)
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: 'A Password is required',
+      })
 
-  // CHECK TO SEE IF USER EXISTS BY EMAIL
-  const foundUser = await User.findOne({ email }).catch((err) => {
-    throw new Error(err)
-  })
+    if (!firstName || !lastName)
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message:
+          'First and Last Name are required to create a more personalized experience.',
+      })
 
-  // IF USER EXISTS ERROR ALREADY IN USE
-  if (foundUser)
-    return res.status(409).json({ error: 'Email Address is already in use' })
-
-  // CREATE WORKSPACE BASE NAME TO LOWERCASE
-  let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
-  // CHECK TO SEE IF NAMES WHERE USED IN ANOTHER WORKSPACE
-  const foundWorkspace = await Workspace.find({
-    name: new RegExp(workspaceName, 'i'),
-  })
-    .sort({ name: -1 })
-    .limit(1)
-    .catch((err) => {
+    // CHECK TO SEE IF USER EXISTS BY EMAIL
+    const foundUser = await User.findOne({ email }).catch((err) => {
       throw new Error(err)
     })
 
-  // IF WORKSAPCE NAME EXISTS
-  if (foundWorkspace.length > 0) {
-    // CREATE NEW WORKSPACE NAME WITH APPENDED NUMBER ACCORDING TO WORKSPACES
-    let workspaceIncrement = parseInt(foundWorkspace[0].name.split('_')[2] || 0)
-    workspaceName += `_${++workspaceIncrement}`
-  }
+    // IF USER EXISTS ERROR ALREADY IN USE
+    if (foundUser)
+      return res.status(409).json({
+        status: 409,
+        success: false,
+        message: 'Email Address is already in use',
+      })
 
-  // CREATE THE WORKSPACE BEFORE CREATING THE USER
-  const workspace = await Workspace.create({
-    name: workspaceName,
-  }).catch((err) => {
-    throw new Error(err)
-  })
+    // CREATE WORKSPACE BASE NAME TO LOWERCASE
+    let workspaceName = `${firstName}_${lastName}`.toLocaleLowerCase()
+    // CHECK TO SEE IF NAMES WHERE USED IN ANOTHER WORKSPACE
+    const foundWorkspace = await Workspace.find({
+      name: new RegExp(workspaceName, 'i'),
+    })
+      .sort({ name: -1 })
+      .limit(1)
+      .catch((err) => {
+        throw new Error(err)
+      })
 
-  // CREATE THE NEW USER
-  const user = await User.create({
-    _workspaceID: workspace._id,
-    firstName,
-    lastName,
-    email,
-    password,
-  })
+    // IF WORKSAPCE NAME EXISTS
+    if (foundWorkspace.length > 0) {
+      // CREATE NEW WORKSPACE NAME WITH APPENDED NUMBER ACCORDING TO WORKSPACES
+      let workspaceIncrement = parseInt(
+        foundWorkspace[0].name.split('_')[2] || 0,
+      )
+      workspaceName += `_${++workspaceIncrement}`
+    }
 
-  // GENERATE TOKEN
-  const token = signToken(user)
+    // CREATE THE WORKSPACE BEFORE CREATING THE USER
+    const workspace = await Workspace.create({
+      name: workspaceName,
+    }).catch((err) => {
+      throw new Error(err)
+    })
 
-  return res.status(201).json({ success: true, token })
+    // CREATE THE NEW USER
+    // FIX: CHANGE TO NEW INSTANCE OF USER NOT CREATE()
+    const user = await User.create({
+      _workspaceID: workspace._id,
+      firstName,
+      lastName,
+      email,
+      password,
+    })
+
+    // GENERATE TOKEN
+    const token = signToken(user)
+
+    return res.status(201).json({
+      status: 201,
+      success: true,
+      token,
+    })
+  },
+  SpotifyLogin: async (req, res, next) => {
+    const { code } = req.body
+    const spotifyAccess = await spotify.GetAcessTokens(code)
+    if (!spotifyAccess)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const { access_token, refresh_token, expires_in, scope } = spotifyAccess
+
+    const spotifyUser = await spotify.GetUserProfile(access_token)
+    if (!spotifyUser)
+      return res.status(400).json({ status: 400, message: 'Bad Request' })
+
+    const user = await User.findOne({ _spotifyID: spotifyUser.id })
+
+    const expires_at = new Date()
+    expires_at.setSeconds(expires_at.getSeconds() + (expires_in - 300))
+
+    let token
+    if (!user) {
+      let name = spotify.GenerateSpotifyName(
+        spotifyUser.display_name,
+        spotifyUser.id,
+      )
+
+      const newUser = await User.create({
+        _workspaceID: Types.ObjectId('5a009c9c99aea999f9c99b99'),
+        _spotifyID: spotifyUser.id,
+        firstName: name.first,
+        lastName: name.last,
+        email: spotifyUser.email,
+        dashboard: false,
+        spotify: {
+          access_token,
+          refresh_token,
+          expires_at,
+          scope,
+        },
+      })
+
+      token = signToken(newUser)
+      return res.status(200).json({ success: true, token })
+    }
+
+    user.spotify.access_token = access_token
+    user.spotify.refresh_token = refresh_token
+    user.spotify.expires_at = expires_at
+    user.spotify.scope = scope
+
+    user.save((err) => {
+      if (err) throw new Error(err)
+    })
+
+    token = signToken(user)
+    return res.status(200).json({ success: true, token })
+  },
 }
-
+/**
+ * Sign JWT Token for a given user
+ *
+ * @private
+ * @param  {User} user Authenticated User
+ * @returns {Object} JWT Token
+ */
 const signToken = (user) => {
   return jwt.sign(
     {
@@ -84,9 +195,4 @@ const signToken = (user) => {
       expiresIn: config.get('SECURITY.JWT.EXPIRES_IN'),
     },
   )
-}
-
-export default {
-  DoLogin,
-  DoRegister,
 }

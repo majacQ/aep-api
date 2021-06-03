@@ -1,21 +1,39 @@
-import { Schema, SchemaTypes } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
+import paginate from 'mongoose-paginate-v2'
 
 const RequestSchema = new Schema(
-    {
-        _eventID: {
-            type: SchemaTypes.ObjectId,
-            required: true,
-            index: true,
-        },
-        song: {
-            type: SchemaTypes.ObjectId,
-            required: true,
-        },
-        played: {
-            type: Boolean,
-            default: true,
-            required: true,
-        },
+  {
+    _workspaceID: {
+      type: Types.ObjectId,
+      required: true,
+      index: true,
     },
-    { versionKey: false, collection: 'requests', timestamps: true },
+    _eventID: {
+      type: Types.ObjectId,
+      required: true,
+      index: true,
+    },
+    _trackID: {
+      type: Types.ObjectId,
+      required: true,
+    },
+    played: {
+      type: Boolean,
+      default: true,
+    },
+    request_count: {
+      type: Number,
+      default: 1,
+    },
+    archived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+  },
+  { versionKey: false, collection: 'requests', timestamps: true },
 )
+
+RequestSchema.plugin(paginate)
+
+export default model('Requests', RequestSchema)

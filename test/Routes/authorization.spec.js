@@ -1,155 +1,265 @@
 import { assert, should, expect } from 'chai'
 import request from 'supertest'
 import config from '../../src/config'
-
-const server = require('../../src/server')
-
-const req = request(server)
+import server from '../../src/server'
+const baseURI = `/${config.get('API_VERSION')}/auth`
+const resetURI = `/${config.get('API_VERSION')}/dev/populate`
+const testUser = {
+  email: 'braden_feeney@hotmail.com',
+  password: 'test1234',
+}
 
 describe('Authorization API Route', () => {
-  let resetUri = `/${config.get('API_VERSION')}/dev/populate`
-  beforeEach(() => {
-    return new Promise((resolve, reject) => {
-      req
-        .get(`/${config.get('API_VERSION')}/dev/populate`)
-        .then(() => {
-          resolve()
-        })
-        .catch((err) => {
-          reject(err)
+  before((done) => {
+    request(server)
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
+        done()
+      })
+  })
+  after((done) => {
+    request(server)
+      .get(resetURI)
+      .end((err) => {
+        if (err) return done(err)
+        done()
+      })
+  })
+  describe('GET,POST,PUT,DELETE /auth', () => {
+    it('get should return 400 Bad Request', (done) => {
+      request(server)
+        .get(baseURI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          done()
         })
     })
-  })
-
-  describe('GET,POST,PUT,DELETE /auth', () => {
-    it('should return 400 Bad Request', async () => {
-      let uri = `/${config.get('API_VERSION')}/auth`
-      await req.get(uri).then((res) => {
-        expect(res.status).to.equal(400)
-      })
-      await req.post(uri).then((res) => {
-        expect(res.status).to.equal(400)
-      })
-      await req.put(uri).then((res) => {
-        expect(res.status).to.equal(400)
-      })
-      await req.delete(uri).then((res) => {
-        expect(res.status).to.equal(400)
-      })
+    it('post should return 400 Bad Request', (done) => {
+      request(server)
+        .post(baseURI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          done()
+        })
+    })
+    it('put should return 400 Bad Request', (done) => {
+      request(server)
+        .put(baseURI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          done()
+        })
+    })
+    it('delete should return 400 Bad Request', (done) => {
+      request(server)
+        .delete(baseURI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          done()
+        })
     })
   })
   describe('POST /auth/login', () => {
-    it('should error if email is not found', () => {
-      expect(true).true
+    const URI = `${baseURI}/login`
+    it('should error if email is not found', (done) => {
+      request(server)
+        .post(URI)
+        .send({
+          email: 'notFound@email.com',
+          password: testUser.password,
+        })
+        .expect(401)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(401)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
     })
-    it('should error if password is not correct', () => {
-      expect(true).true
+    it('should error if password is not correct', (done) => {
+      // FIX: TAKES ON AVERAGE 3500-5000ms
+      request(server)
+        .post(URI)
+        .send({
+          email: testUser.email,
+          password: 'test',
+        })
+        .expect(401)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(401)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
     })
-    it('should error if request body is not supplied', () => {
-      expect(true).true
+    it('should error if request body is not supplied', (done) => {
+      request(server)
+        .post(URI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
     })
-    it('should error if email key is not supplied', () => {
-      expect(true).true
+    it('should error if email key is not supplied', (done) => {
+      request(server)
+        .post(URI)
+        .send({
+          password: testUser.password,
+        })
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
     })
-    it('should error if password key is not supplied', () => {
-      expect(true).true
+    it('should error if password key is not supplied', (done) => {
+      request(server)
+        .post(URI)
+        .send({
+          email: testUser.email,
+        })
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
     })
-    it('should return json success key and jwt token cookie', () => {
-      expect(true).true
+    it('should return json success and jwt token', (done) => {
+      // FIX: TAKES ON AVERAGE 3500-5000ms
+      request(server)
+        .post(URI)
+        .send(testUser)
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(200)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.true
+          expect(res.body).to.haveOwnProperty('token')
+          done()
+        })
     })
   })
   describe('POST /auth/register', () => {
-    let uri = `/${config.get('API_VERSION')}/auth/register`
-    it('should error if email was not supplied', async () => {
-      await req
-        .post(uri)
+    const URI = `${baseURI}/register`
+    it('should error if email already exists', (done) => {
+      request(server)
+        .post(URI)
         .send({
           firstName: 'Mocha',
           lastName: 'Test',
-          password: 'MochaTest',
+          email: testUser.email,
+          password: testUser.password,
         })
-        .then((res) => {
-          expect(res.status).to.equal(400)
-          expect(res.body).to.have.property('status')
-          expect(res.body).to.have.property('message')
+        .expect(409)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(409)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
         })
     })
-    it('should error if password was not supplied', async () => {
-      await req
-        .post(uri)
+    it('should error if email was not supplied', (done) => {
+      request(server)
+        .post(URI)
         .send({
           firstName: 'Mocha',
           lastName: 'Test',
-          email: 'MochaTest@gmail.com',
+          password: testUser.password,
         })
-        .then((res) => {
-          expect(res.status).to.equal(400)
-          expect(res.body).to.have.property('status')
-          expect(res.body).to.have.property('message')
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
         })
     })
-    // it('should error if body was not supplied', async () => {
-    //   await req
-    //     .post(uri)
-    //     .then((res) => {
-    //       expect(res.status).to.equal(400)
-    //       expect(res.body).to.have.property('status')
-    //       expect(res.body).to.have.property('message')
-    //     })
-    // })
-    it('should return status of 201 Created', async () => {
-      // await req
-      //   .post(uri)
-      //   .send({
-      //     firstName: 'Mocha',
-      //     lastName: 'Test',
-      //     email: 'MochaTest@gmail.com',
-      //     password: 'MochaTest',
-      //   })
-      //   .then((res) => {
-      //     expect(res.status).to.equal(201)
-      //   })
-      //   .finally(async () => {
-      //     req.get(resetUri).catch((err) => {
-      //       throw new Error(err)
-      //     })
-      //   })
-    })
-    it('should return body key success: true when successfully created', async () => {
-      await req
-        .post(uri)
+    it('should error if password was not supplied', (done) => {
+      request(server)
+        .post(URI)
         .send({
           firstName: 'Mocha',
           lastName: 'Test',
-          email: 'MochaTest@gmail.com',
-          password: 'MochaTest',
+          email: testUser.email,
         })
-        .then((res) => {
-          expect(res.body).to.have.property('success')
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
+    })
+    it('should error if body was not supplied', (done) => {
+      request(server)
+        .post(URI)
+        .expect(400)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(400)
+          expect(res.body).to.haveOwnProperty('success')
+          expect(res.body.success).to.be.false
+          expect(res.body).to.haveOwnProperty('message')
+          done()
+        })
+    })
+    it('should return status of 201 Created', (done) => {
+      request(server)
+        .post(URI)
+        .send({
+          firstName: 'Mocha',
+          lastName: 'Test',
+          email: 'mocha@test.com',
+          password: 'fakeUser1',
+        })
+        .expect(201)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body).to.haveOwnProperty('status')
+          expect(res.body.status).to.equal(201)
+          expect(res.body).to.haveOwnProperty('success')
           expect(res.body.success).to.be.true
-        })
-        .finally(async () => {
-          req.get(resetUri).catch((err) => {
-            throw new Error(err)
-          })
-        })
-    })
-    it('should return jwt token along with success', async () => {
-      await req
-        .post(uri)
-        .send({
-          firstName: 'Mocha',
-          lastName: 'Test',
-          email: 'MochaTest@gmail.com',
-          password: 'MochaTest',
-        })
-        .then((res) => {
-          expect(res.body).to.have.property('token')
-        })
-        .finally(async () => {
-          req.get(resetUri).catch((err) => {
-            throw new Error(err)
-          })
+          expect(res.body).to.haveOwnProperty('token')
+          done()
         })
     })
   })
@@ -164,8 +274,6 @@ describe('Authorization API Route', () => {
       expect(true).true
     })
   })
-  describe('POST /auth/token', () => {})
-  describe('POST /auth/revoke', () => {})
   describe('POST /auth/logout', () => {
     it('should error if not authorized', () => {
       expect(true).true
