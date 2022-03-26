@@ -10,7 +10,9 @@
     "build": "npm run lint && <INSERT BUILD COMMAND>",
     "lint": "eslint --fix . && echo Lint Successful",
     "test": "cross-env NODE_ENV=testing mocha --recursive --require @babel/register --exit",
-    "babel-node": "babel-node --presets=@babel/preset-env"
+    "babel-node": "babel-node --presets=@babel/preset-env",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -63,6 +65,8 @@
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
-  }
+    "passport-local": "^1.0.0",
+    "@snyk/protect": "latest"
+  },
+  "snyk": true
 }
